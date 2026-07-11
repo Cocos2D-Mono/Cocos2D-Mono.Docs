@@ -31,7 +31,7 @@ Before you begin, make sure you have:
 If you don't have the template installed, you can:
 - Install the [Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=Cocos2D-MonoTeamBrokenWallsStudios.cocos2dmonoprojecttemplates)
 - Install the dotnet templates by running: `dotnet new install Cocos2DMono.Samples` and then create a new project with `dotnet new c2mdesktopgl -n Platformer`
-- Or create a new MonoGame DesktopGL project and add cocos2d-mono.DesktopGL through NuGet packages
+- Or create a new MonoGame DesktopGL project and add the `Cocos2D-Mono` NuGet package
 
 ## Step 2: Understanding Project Structure
 
