@@ -39,6 +39,14 @@ We support a growing list of platforms across the desktop, mobile, and console s
   - PlayStation 4
   - PlayStation 5
 
+# One Package, Every Platform
+
+Cocos2D-Mono is distributed as a **single, multi-targeted NuGet package**. You add one reference — `Cocos2D-Mono` — and the build for your project's target framework is selected automatically: DesktopGL for cross-platform desktop (Windows, Linux, and macOS), WindowsDX for `net9.0-windows`, Android, or iOS.
+
+This replaces the older model, where each platform had its own package (`Cocos2D-Mono.DesktopGL`, `Cocos2D-Mono.Windows`, `Cocos2D-Mono.Android`, and so on). **Picking a platform-specific package is no longer a thing** — one package covers them all, so there's less to choose from, nothing to keep in sync between platforms, and a simpler upgrade path. A content-pipeline-free variant, `Cocos2D-Mono.Core`, is available for projects that don't use the MonoGame content pipeline, and the Box2D physics port ships as `Cocos2D-Mono.Box2D` (included automatically through the packages above).
+
+Coming from the per-platform packages? See the [Migrating to 2.5.11 guide](/docs/guides/developing/migrating-to-2.5.11).
+
 # Support & Contributing
 
 If you think you have found a bug or have a feature request, use the [issue tracker](https://github.com/Cocos2D-Mono/cocos2d-mono/issues). Before opening a new issue, please search to see if your problem has already been reported. Try to be as detailed as possible in your issue reports.
