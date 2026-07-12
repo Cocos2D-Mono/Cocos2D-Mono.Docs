@@ -24,4 +24,4 @@ Samples can be found in the [Cocos2D-Mono Samples repository](https://github.com
 
 Cocos2D-Mono ships as a single, multi-targeted [NuGet package](https://www.nuget.org/packages/Cocos2D-Mono) that covers every platform (Windows, Linux, macOS, Android, and iOS) — reference `Cocos2D-Mono` and the right build is selected automatically. A content-pipeline-free variant, [`Cocos2D-Mono.Core`](https://www.nuget.org/packages/Cocos2D-Mono.Core), is also available.
 
-Once you feel comfortable checking out the Samples and/of have the Project Templates installed you can get started creating your first project.
+Once you feel comfortable checking out the Samples, and/or have the Project Templates installed, you can get started creating your first project.

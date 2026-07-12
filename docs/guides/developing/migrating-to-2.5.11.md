@@ -72,12 +72,16 @@ reference of your own.
 
 ## Platform notes
 
-The target frameworks are unchanged from the 2.5.x line:
+The **package's** target frameworks are unchanged from the 2.5.x line:
 
 - **DesktopGL** (Windows / Linux / macOS): `net9.0`
 - **WindowsDX**: `net9.0-windows7.0`
 - **Android**: `net9.0-android35.0`
 - **iOS**: `net9.0-ios18.0`
+
+**Your project doesn't need to match these exactly.** A project targeting the shorter form —
+`net9.0-windows`, `net9.0-android`, or `net9.0-ios` — resolves the matching build automatically,
+which is what the samples and project templates do.
 
 The [Visual Studio Project Template Extension](https://marketplace.visualstudio.com/items?itemName=Cocos2D-MonoTeamBrokenWallsStudios.cocos2dmonoprojecttemplates)
 is updated for the consolidated packages; new projects created from it reference
