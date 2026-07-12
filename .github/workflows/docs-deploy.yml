@@ -33,8 +33,12 @@ jobs:
       - name: 🧰 Install DocFX
         run: dotnet tool install -g docfx
 
-      # DocFX only needs the net9.0 build of the library, so narrow to that single
-      # target framework: no Android/iOS workloads, no content pipeline, much faster.
+      # DocFX only needs the net9.0 build of the library. -p:TargetFrameworks=net9.0
+      # narrows the multi-targeted project to that one TFM for BOTH restore and build:
+      # without it, MSBuild/NuGet still evaluate the android + ios TFMs and the build
+      # fails on this runner, which installs no mobile workloads. (-f is not a
+      # substitute: it selects an inner build but does not stop the other TFMs from
+      # being evaluated. With TargetFrameworks already narrowed, -f is redundant.)
       - name: 📦 Restore API project
         run: |
           cd cocos2d-mono
@@ -43,7 +47,7 @@ jobs:
       - name: 📖 Build API project
         run: |
           cd cocos2d-mono
-          dotnet build src/Cocos2DMono/Cocos2DMono.csproj -c Release -f net9.0 -p:TargetFrameworks=net9.0 --no-restore
+          dotnet build src/Cocos2DMono/Cocos2DMono.csproj -c Release -p:TargetFrameworks=net9.0 --no-restore
 
       - name: 📘 Generate DocFX Metadata
         run: |
