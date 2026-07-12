@@ -17,8 +17,8 @@
     "build-with-api": "npm run process-docfx && npm run validate-mdx && docusaurus build"
   },
   "dependencies": {
-    "@docusaurus/core": "3.0.0",
-    "@docusaurus/preset-classic": "3.0.0",
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
     "@easyops-cn/docusaurus-search-local": "^0.52.1",
     "@mdx-js/react": "2.0.0",
     "clsx": "^1.2.1",
@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.0.0",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.3.0"
   },
   "browserslist": {
     "production": [
