@@ -2,11 +2,77 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://cocos2d-mono.dev/blog</id>
     <title>Cocos2d-Mono Blog</title>
-    <updated>2025-01-25T00:00:00.000Z</updated>
+    <updated>2026-07-10T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://cocos2d-mono.dev/blog"/>
     <subtitle>Cocos2d-Mono Blog</subtitle>
     <icon>https://cocos2d-mono.dev/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Cocos2D-Mono 2.5.11 is now out!]]></title>
+        <id>https://cocos2d-mono.dev/blog/2.5.11-release</id>
+        <link href="https://cocos2d-mono.dev/blog/2.5.11-release"/>
+        <updated>2026-07-10T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Release Logo]]></summary>
+        <content type="html"><![CDATA[<p><img alt="Release Logo" src="https://cocos2d-mono.dev/assets/images/logo-full-release-ba81e0681a782332d172ed5dfa4d8f36.png" width="1500" height="500"></p>
+<p>Cocos2D-Mono <strong>2.5.11</strong> is here — and it's a big one for how you <em>consume</em> the library. Go check out the <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/2.5.11">release notes</a> for the full rundown, or read on.</p>
+<p>The headline: <strong>twelve per-platform packages just became three.</strong> One reference now covers every platform. There's a small migration to do, so there's a guide below to make it painless.</p>
+<h2 id="whats-changed">What's Changed</h2>
+<ul>
+<li><strong>New consolidated NuGet packages</strong> — <code>Cocos2D-Mono</code>, <code>Cocos2D-Mono.Core</code>, and <code>Cocos2D-Mono.Box2D</code>, each multi-targeting DesktopGL (Windows/Linux/macOS), WindowsDX, Android, and iOS</li>
+<li>The per-platform packages (<code>Cocos2D-Mono.DesktopGL</code>, <code>.Windows</code>, <code>.Linux</code>, <code>.macOS</code>, <code>.Android</code>, <code>.iOS</code>, and their <code>.Core.*</code> variants) are retired — 2.5.10 was their final release</li>
+<li>Assembly renamed <code>Cocos2D.dll</code> → <code>Cocos2DMono.dll</code> (the namespace is still <code>Cocos2D</code>)</li>
+<li><strong>OpenTK is no longer a dependency</strong> — a leaner dependency graph for everyone</li>
+<li>New <code>ICCUserDefaultStorage</code> / <code>CCUserDefault.Storage</code> — pluggable settings storage</li>
+<li>Modernized codebase under the hood: file-scoped namespaces, <code>_camelCase</code> private fields, and a much simpler build</li>
+</ul>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/compare/2.5.10...2.5.11">https://github.com/Cocos2D-Mono/cocos2d-mono/compare/2.5.10...2.5.11</a></p>
+<h2 id="nuget-packages">NuGet Packages</h2>
+<ul>
+<li>
+<p><strong>Cocos2D-Mono</strong> (Windows, Linux, macOS, Android, iOS): <a href="https://www.nuget.org/packages/Cocos2D-Mono/">Cocos2D-Mono</a></p>
+</li>
+<li>
+<p><strong>Cocos2D-Mono.Core</strong> — same engine, no content-pipeline dependency: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Core/">Cocos2D-Mono.Core</a></p>
+</li>
+<li>
+<p><strong>Cocos2D-Mono.Box2D</strong> — the Box2D physics port: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Box2D/">Cocos2D-Mono.Box2D</a></p>
+</li>
+</ul>
+<p><a href="https://marketplace.visualstudio.com/items?itemName=Cocos2D-MonoTeamBrokenWallsStudios.cocos2dmonoprojecttemplates">Visual Studio Project Template Extension</a></p>
+<h2 id="one-library-every-platform">One Library, Every Platform</h2>
+<p>For years, picking Cocos2D-Mono meant first picking a <em>flavor</em>: <code>Cocos2D-Mono.DesktopGL</code>, or <code>.Windows</code>, or <code>.Android</code>, and so on — twelve packages in all once you count the <code>.Core</code> variants. Every release meant building, packing, and publishing all twelve, and every consumer had to know which one they needed.</p>
+<p>That's over. <strong><code>Cocos2D-Mono</code> is now a single package that multi-targets every platform.</strong> Reference it once, and the right build for your project's target framework is selected automatically — DesktopGL for a cross-platform desktop game, WindowsDX on <code>net9.0-windows</code>, Android, or iOS. Same for <code>Cocos2D-Mono.Core</code> (the variant without the MonoGame content-pipeline build task) and the newly standalone <code>Cocos2D-Mono.Box2D</code>.</p>
+<p>Under the hood this was a big cleanup: roughly thirty per-platform projects collapsed into three, package versions centralized, and the whole thing validated by a real unit-test suite and a CI matrix that builds every target on every commit. Less surface area for us to maintain means faster, safer releases for you.</p>
+<h2 id="migration-guide">Migration Guide</h2>
+<p>Moving from a <code>2.5.x</code> per-platform package to <code>2.5.11</code> is quick. In most projects it's a <strong>one-line change</strong>.</p>
+<h3 id="1-swap-your-package-reference">1. Swap your package reference</h3>
+<p>Replace your per-platform package with the consolidated one:</p>
+<pre><code class="language-diff">- &lt;PackageReference Include="Cocos2D-Mono.DesktopGL" Version="2.5.10" /&gt;
++ &lt;PackageReference Include="Cocos2D-Mono" Version="2.5.11" /&gt;
+</code></pre>
+<p>The mapping is straightforward:</p>
+<table><thead><tr><th>If you referenced…</th><th>Use now</th></tr></thead><tbody><tr><td><code>Cocos2D-Mono.DesktopGL</code> / <code>.Windows</code> / <code>.Linux</code> / <code>.macOS</code> / <code>.Android</code> / <code>.iOS</code></td><td><strong><code>Cocos2D-Mono</code></strong></td></tr><tr><td>any <code>Cocos2D-Mono.Core.*</code></td><td><strong><code>Cocos2D-Mono.Core</code></strong></td></tr></tbody></table>
+<p>The correct platform build is chosen from your project's target framework, so a cross-platform game that used to reference <code>Cocos2D-Mono.DesktopGL</code> just references <code>Cocos2D-Mono</code> and keeps working.</p>
+<h3 id="2-your-code-doesnt-change">2. Your code doesn't change</h3>
+<p>The namespace is still <strong><code>Cocos2D</code></strong> — every <code>using Cocos2D;</code> and every type stays exactly the same. No source edits.</p>
+<h3 id="3-two-things-to-double-check">3. Two things to double-check</h3>
+<ul>
+<li><strong>Assembly name.</strong> The DLL is now <code>Cocos2DMono.dll</code> (it was <code>Cocos2D.dll</code>). This is invisible to normal code and NuGet references, but if you load the assembly by name — a by-name <code>&lt;Reference&gt;</code>, <code>Assembly.Load("Cocos2D")</code>, or reflection keyed on the assembly name — update it to <code>Cocos2DMono</code>.</li>
+<li><strong>OpenTK.</strong> It's no longer pulled in transitively (it was referenced but unused). If your own code happened to rely on that transitive reference, add an explicit <code>OpenTK</code> package reference of your own.</li>
+</ul>
+<p>That's it. For the vast majority of projects, step 1 is the whole migration.</p>
+<h2 id="whats-next">What's Next</h2>
+<p>The <code>2.6.0</code> line continues the move to <strong>.NET 10 and MonoGame 3.8.5</strong>, landing once MonoGame 3.8.5 is stable. And as noted on the <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/ROADMAP.md">roadmap</a>, <strong>console support — starting with PlayStation 5 — is in active development</strong>, following the same access model MonoGame uses for its console frameworks.</p>
+<p>This release clears the decks: a clean, consolidated, well-tested foundation to build all of that on. Thanks, as always, for being part of it.</p>
+<p>Check it out &amp; stay tuned for more to come!</p>]]></content>
+        <author>
+            <name>Brandon</name>
+            <uri>https://github.com/brandmooffin</uri>
+        </author>
+        <category label="update" term="update"/>
+        <category label="release" term="release"/>
+        <category label="2.5.11" term="2.5.11"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Cocos2D-Mono 2.5.0 is now out!]]></title>
         <id>https://cocos2d-mono.dev/blog/2.5.0-release</id>

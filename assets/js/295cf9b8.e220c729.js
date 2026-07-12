@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[85161],{20278:t=>{t.exports=JSON.parse('{"title":"Getting Started","description":"Get going with Cocos2d-Mono.","slug":"/category/getting-started","permalink":"/docs/category/getting-started","navigation":{"next":{"title":"Introduction","permalink":"/docs/guides/getting-started/introduction"}}}')}}]);
