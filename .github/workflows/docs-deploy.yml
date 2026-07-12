@@ -23,29 +23,31 @@ jobs:
           token: ${{ secrets.DOCS_REPO_PAT }}
           path: cocos2d-mono
 
+      # Use the engine repo's own global.json so the SDK always matches what it
+      # pins (9.0.305+). A hardcoded version drifts and silently breaks the build.
       - name: ⚙️ Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          global-json-file: cocos2d-mono/global.json
 
       - name: 🧰 Install DocFX
         run: dotnet tool install -g docfx
 
-      - name: Install required .NET workloads
-        run: |
-          dotnet workload update --version 8.0.400
-          dotnet workload install android
-          dotnet workload install ios
-
+      # DocFX only needs the net9.0 build of the library. -p:TargetFrameworks=net9.0
+      # narrows the multi-targeted project to that one TFM for BOTH restore and build:
+      # without it, MSBuild/NuGet still evaluate the android + ios TFMs and the build
+      # fails on this runner, which installs no mobile workloads. (-f is not a
+      # substitute: it selects an inner build but does not stop the other TFMs from
+      # being evaluated. With TargetFrameworks already narrowed, -f is redundant.)
       - name: 📦 Restore API project
         run: |
           cd cocos2d-mono
-          dotnet restore ./cocos2d-mono.All/cocos2d-mono.All.sln
+          dotnet restore src/Cocos2DMono/Cocos2DMono.csproj -p:TargetFrameworks=net9.0
 
       - name: 📖 Build API project
         run: |
           cd cocos2d-mono
-          dotnet build ./cocos2d-mono.All/cocos2d-mono.All.sln --configuration Release
+          dotnet build src/Cocos2DMono/Cocos2DMono.csproj -c Release -p:TargetFrameworks=net9.0 --no-restore
 
       - name: 📘 Generate DocFX Metadata
         run: |
