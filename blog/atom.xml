@@ -2,11 +2,56 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://cocos2d-mono.dev/blog</id>
     <title>Cocos2d-Mono Blog</title>
-    <updated>2026-07-10T00:00:00.000Z</updated>
+    <updated>2026-07-24T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://cocos2d-mono.dev/blog"/>
     <subtitle>Cocos2d-Mono Blog</subtitle>
     <icon>https://cocos2d-mono.dev/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Cocos2D-Mono 2.5.12 is now out!]]></title>
+        <id>https://cocos2d-mono.dev/blog/2.5.12-release</id>
+        <link href="https://cocos2d-mono.dev/blog/2.5.12-release"/>
+        <updated>2026-07-24T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Release Logo]]></summary>
+        <content type="html"><![CDATA[<p><img alt="Release Logo" src="https://cocos2d-mono.dev/assets/images/logo-new-release-a00e319b06d8816c2ed71b8b28debe4c.png" width="1500" height="500"></p>
+<p>Cocos2D-Mono <strong>2.5.12</strong> is here — a drop-in bug-fix release that closes out the 2.5 line. No new APIs, no breaking changes, no migration: bump your package reference and you're done. The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/2.5.12">release notes</a> have the full rundown.</p>
+<p>And yes — with MonoGame 3.8.5 now out, work on the <strong>2.6.0</strong> line has officially started. More on that below.</p>
+<h2 id="whats-fixed">What's Fixed</h2>
+<ul>
+<li><strong>Instant action copies</strong> — <code>CCFlipX</code>, <code>CCFlipY</code>, and <code>CCPlace</code> now preserve their state when copied via <code>Copy()</code> (copies previously lost their flip/position values).</li>
+<li><strong><code>CCCallFuncN.InitWithTarget</code></strong> now returns <code>true</code> on success, matching <code>CCCallFuncO</code>.</li>
+<li><strong><code>CCMenuItemSprite</code></strong> — setting <code>NormalImage</code> / <code>SelectedImage</code> / <code>DisabledImage</code> to <code>null</code> now clears the image instead of throwing a <code>NullReferenceException</code>.</li>
+<li><strong><code>CCTextFieldTTF</code></strong> — auto-edit touch input re-registers correctly after toggling <code>ReadOnly</code> / <code>AutoEdit</code>, so a field returned to editable is touch-interactive again.</li>
+<li><strong><code>CCRawList&lt;T&gt;.RemoveRange</code></strong> — removing a middle range near the end of the list no longer corrupts it (previously the element shift was skipped and surviving elements zeroed — visible as vertex corruption when removing draw-node segments). Pooled-buffer rent/return handling was also reworked, fixing a tail-clear buffer leak.</li>
+</ul>
+<h2 id="under-the-hood">Under the Hood</h2>
+<p>The internal modernization that started in 2.5.11 is now complete: every private field in the library uses modern C# naming, landed across a dozen small, individually-reviewed changes with no public API impact. Just as importantly, <strong>every fix above ships with regression tests</strong> — the unit suite now stands at 132 tests, with builds verified across DesktopGL, WindowsDX, Android, and iOS.</p>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/compare/2.5.11...2.5.12">https://github.com/Cocos2D-Mono/cocos2d-mono/compare/2.5.11...2.5.12</a></p>
+<h2 id="nuget-packages">NuGet Packages</h2>
+<ul>
+<li>
+<p><strong>Cocos2D-Mono</strong> (Windows, Linux, macOS, Android, iOS): <a href="https://www.nuget.org/packages/Cocos2D-Mono/">Cocos2D-Mono</a></p>
+</li>
+<li>
+<p><strong>Cocos2D-Mono.Core</strong> — same engine, no content-pipeline dependency: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Core/">Cocos2D-Mono.Core</a></p>
+</li>
+<li>
+<p><strong>Cocos2D-Mono.Box2D</strong> — the Box2D physics port: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Box2D/">Cocos2D-Mono.Box2D</a></p>
+</li>
+</ul>
+<p>The samples and Visual Studio project templates stay on 2.5.11 for this one — they'll move directly to 2.6.0.</p>
+<h2 id="whats-next-260">What's Next: 2.6.0</h2>
+<p>When 2.5.11 shipped, we said the 2.6.0 line would land <em>"once MonoGame 3.8.5 is stable."</em> <strong>MonoGame 3.8.5 is out</strong> — a huge release on their side, with a new native core, Vulkan and Direct3D 12 backends in preview, and ARM64 support — and the 2.6.0 bring-up (MonoGame 3.8.5 + .NET 10) is now underway. Early compatibility testing is already looking clean, and thanks to the 2.5.11 build consolidation, the retarget is a fraction of the work it would have been a year ago.</p>
+<p>Alongside that, the <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/ROADMAP.md">roadmap</a> work continues — including <strong>console support, starting with PlayStation 5</strong>, still in active development.</p>
+<p>2.5.12 is the clean checkpoint: every known bug fixed, fully tested, ready to build on. Thanks, as always, for being part of it — and stay tuned, because 2.6.0 is going to be a fun one!</p>]]></content>
+        <author>
+            <name>Brandon</name>
+            <uri>https://github.com/brandmooffin</uri>
+        </author>
+        <category label="update" term="update"/>
+        <category label="release" term="release"/>
+        <category label="2.5.12" term="2.5.12"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Cocos2D-Mono 2.5.11 is now out!]]></title>
         <id>https://cocos2d-mono.dev/blog/2.5.11-release</id>
