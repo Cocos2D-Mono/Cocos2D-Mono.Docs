@@ -5,7 +5,7 @@ authors: [brandmooffin]
 tags: [update, release, 2.5.12]
 ---
 
-![Release Logo](./logo-full-release.png)
+![Release Logo](./logo-new-release.png)
 
 Cocos2D-Mono **2.5.12** is here — a drop-in bug-fix release that closes out the 2.5 line. No new APIs, no breaking changes, no migration: bump your package reference and you're done. The [release notes](https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/2.5.12) have the full rundown.
 
