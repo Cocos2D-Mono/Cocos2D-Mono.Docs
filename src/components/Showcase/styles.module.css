@@ -68,11 +68,23 @@
 
 .body {
   padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .cardTitle {
   margin-bottom: 0.15rem;
   font-size: 1.1rem;
+}
+
+.titleLink {
+  color: inherit;
+}
+
+.titleLink:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
 }
 
 .studio {
@@ -84,7 +96,21 @@
 .blurb {
   font-size: 0.9rem;
   color: var(--ifm-color-emphasis-800);
-  margin-bottom: 0;
+  margin-bottom: 0.85rem;
+}
+
+.linksRow {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+}
+
+.platformLink {
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .cta {

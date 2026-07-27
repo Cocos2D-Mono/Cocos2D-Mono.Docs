@@ -14,23 +14,35 @@ function Initials({ title }) {
   return <div className={styles.initialsTile}>{initials}</div>;
 }
 
-function ShowcaseCard({ title, studio, blurb, link, image }) {
+function ShowcaseCard({ title, studio, blurb, image, links }) {
   const imageUrl = useBaseUrl(image ?? "");
+  const primary = links[0];
   return (
-    <Link to={link} className={styles.card}>
-      <div className={styles.media}>
+    <div className={styles.card}>
+      <Link to={primary.url} className={styles.media} aria-label={`${title} — ${primary.label}`}>
         {image ? (
           <img src={imageUrl} alt={`${title} key art`} loading="lazy" />
         ) : (
           <Initials title={title} />
         )}
-      </div>
+      </Link>
       <div className={styles.body}>
-        <h3 className={styles.cardTitle}>{title}</h3>
+        <h3 className={styles.cardTitle}>
+          <Link to={primary.url} className={styles.titleLink}>
+            {title}
+          </Link>
+        </h3>
         <p className={styles.studio}>{studio}</p>
         <p className={styles.blurb}>{blurb}</p>
+        <div className={styles.linksRow}>
+          {links.map((entry) => (
+            <Link key={entry.label} to={entry.url} className={styles.platformLink}>
+              {entry.label}
+            </Link>
+          ))}
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
