@@ -29,10 +29,11 @@ const showcase = [
   {
     title: "2048@Classic",
     studio: "Broken Walls Studios",
-    blurb: "The classic sliding-tile puzzle, polished for iOS and tvOS.",
+    blurb: "The classic sliding-tile puzzle, polished for mobile and TV.",
     image: "img/showcase/2048-classic.jpg",
     links: [
       { label: "App Store", url: "https://apps.apple.com/us/app/2048-classic/id957822053" },
+      { label: "Google Play", url: "https://play.google.com/store/apps/details?id=brokenwallsstudios.games.original2048" },
     ],
   },
   {
@@ -62,6 +63,7 @@ const showcase = [
     image: "img/showcase/sakuru.jpg",
     links: [
       { label: "App Store", url: "https://apps.apple.com/us/app/sakuru/id879936882" },
+      { label: "Google Play", url: "https://play.google.com/store/apps/details?id=brokenwallsstudios.games.sakuru" },
     ],
   },
 ];
