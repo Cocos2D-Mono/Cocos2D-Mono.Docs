@@ -27,11 +27,6 @@
     "react-dom": "^18.0.0",
     "cheerio": "1.0.0-rc.12"
   },
-  "overrides": {
-    "@cmfcmf/docusaurus-search-local": {
-      "@docusaurus/core": "3.10.2"
-    }
-  },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.10.2",
     "js-yaml": "^4.3.0"
