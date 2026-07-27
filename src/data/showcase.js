@@ -37,7 +37,7 @@ const showcase = [
     studio: "Broken Walls Studios",
     blurb: "The sequel — more action, more mayhem, higher scores.",
     link: "https://apps.apple.com/us/app/an-indie-game-2/id879950297",
-    image: "img/showcase/an-indie-game-2.jpg",
+    image: "img/showcase/an-indie-game-2.png",
   },
   {
     title: "sakuru",
