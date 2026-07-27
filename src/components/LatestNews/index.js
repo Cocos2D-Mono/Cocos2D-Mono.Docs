@@ -4,10 +4,13 @@ import { usePluginData } from "@docusaurus/useGlobalData";
 import styles from "./styles.module.css";
 
 function formatDate(isoDate) {
+  // Dates arrive as YYYY-MM-DD (UTC midnight); format in UTC so viewers in
+  // negative-offset timezones don't see the previous day.
   return new Date(isoDate).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   });
 }
 

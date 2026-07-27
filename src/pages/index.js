@@ -1,6 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import Link from "@docusaurus/Link";
+import useBaseUrl from "@docusaurus/useBaseUrl";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import HomepageFeatures from "@site/src/components/HomepageFeatures";
@@ -15,7 +16,7 @@ function HomepageHeader() {
     <header className={clsx("hero hero--primary", styles.heroBanner)}>
       <div className="container">
         <h1 className="hero__title">
-          <img src="/img/logo-text.svg" alt="Cocos2d-Mono" />
+          <img src={useBaseUrl("img/logo-text.svg")} alt="Cocos2d-Mono" />
         </h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <p className={styles.heroTagline}>
