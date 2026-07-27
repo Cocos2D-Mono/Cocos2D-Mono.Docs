@@ -91,10 +91,10 @@ export default function Home() {
     >
       <HomepageHeader />
       <main>
-        <Showcase />
         <LatestNews />
-        <HomepageFeatures />
         <CtaSection />
+        <HomepageFeatures />
+        <Showcase />
       </main>
     </Layout>
   );
