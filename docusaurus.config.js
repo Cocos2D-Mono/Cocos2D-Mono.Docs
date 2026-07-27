@@ -11,7 +11,11 @@ const config = {
   url: "https://cocos2d-mono.dev",
   baseUrl: "/",
   onBrokenLinks: "warn",
-  onBrokenMarkdownLinks: "warn",
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
   favicon: "img/favicon.ico",
 
   // GitHub pages deployment config.
