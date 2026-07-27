@@ -4,22 +4,24 @@ import styles from "./styles.module.css";
 
 const FeatureList = [
   {
-    title: "Focus on What Matters",
-    Svg: require("@site/static/img/cocos2d-mono-small-logo.svg").default,
+    title: "Modern C#",
+    Svg: require("@site/static/img/c-logo.svg").default,
     description: (
       <>
-        Cocos2d-Mono lets you focus on your games, and we&apos;ll do the chores.
-        No need to worry about complicated game loops.
+        Write your game in modern C# on .NET — full access to the .NET
+        ecosystem, first-class tooling, and a familiar scene/node/action API
+        that stays out of your way.
       </>
     ),
   },
   {
-    title: "Easy to Use",
-    Svg: require("@site/static/img/c-logo.svg").default,
+    title: "One Package, Every Platform",
+    Svg: require("@site/static/img/cocos2d-mono-small-logo.svg").default,
     description: (
       <>
-        Cocos2d-Mono was designed to build and develop games with C# and get up
-        and running quickly.
+        A single NuGet reference multi-targets DesktopGL (Windows, Linux,
+        macOS), WindowsDX, Android, and iOS — the right build for your project
+        is selected automatically.
       </>
     ),
   },
@@ -28,8 +30,9 @@ const FeatureList = [
     Svg: require("@site/static/img/monogame-logo.svg").default,
     description: (
       <>
-        Harness the power of MonoGame under the hood and build amazing games
-        with a simpler approach.
+        Built on the battle-tested MonoGame framework, with shipped titles on
+        Steam and the mobile stores to prove it — open source, free, and
+        actively modernized.
       </>
     ),
   },

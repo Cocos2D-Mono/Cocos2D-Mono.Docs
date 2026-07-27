@@ -32,6 +32,7 @@ const config = {
   },
 
   plugins: [
+    "./plugins/recent-blog-posts",
     [
       require.resolve("@easyops-cn/docusaurus-search-local"),
       {

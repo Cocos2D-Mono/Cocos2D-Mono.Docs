@@ -1,0 +1,121 @@
+.showcase {
+  padding: 4rem 0;
+  background: var(--ifm-background-surface-color);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.header p {
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ifm-card-border-radius, 8px);
+  background: var(--ifm-background-color);
+  overflow: hidden;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--ifm-global-shadow-md);
+  text-decoration: none;
+  color: inherit;
+}
+
+.media {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ifm-color-emphasis-100);
+  padding: 0.75rem;
+}
+
+.media img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.initialsTile {
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--ifm-color-primary), var(--ifm-color-primary-darkest));
+}
+
+.body {
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cardTitle {
+  margin-bottom: 0.15rem;
+  font-size: 1.1rem;
+}
+
+.titleLink {
+  color: inherit;
+}
+
+.titleLink:hover {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.studio {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 0.5rem;
+}
+
+.blurb {
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-800);
+  margin-bottom: 0.85rem;
+}
+
+.linksRow {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+}
+
+.platformLink {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cta {
+  text-align: center;
+  margin-top: 2rem;
+  margin-bottom: 0;
+  color: var(--ifm-color-emphasis-700);
+}
