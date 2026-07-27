@@ -16,7 +16,7 @@ const showcase = [
     studio: "Synaptikon GmbH",
     blurb: "Scientific brain training used by millions worldwide.",
     link: "https://www.neuronation.com/",
-    image: null, // initials tile until brand art is available
+    image: "img/showcase/neuronation.jpg",
   },
   {
     title: "2048@Classic",
@@ -30,7 +30,7 @@ const showcase = [
     studio: "Broken Walls Studios",
     blurb: "Run, jump, shoot, and swing your way to a high score.",
     link: "https://apps.apple.com/us/app/an-indie-game/id476114460",
-    image: "img/showcase/an-indie-game.jpg",
+    image: "img/showcase/an-indie-game.png",
   },
   {
     title: "An Indie Game 2",
