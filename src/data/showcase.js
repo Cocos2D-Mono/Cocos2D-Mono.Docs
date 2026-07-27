@@ -3,8 +3,8 @@
 // Adding a title is a one-entry PR: drop key art (square icon or landscape
 // capsule both render fine) into static/img/showcase/ and add an entry here.
 // Set image to null to use the styled initials tile until art is available.
-// links: first entry is the primary target (the card title links to it);
-// every entry renders in the card's platform-links row.
+// links: first entry is the primary target (the card art and title link to
+// it); every entry renders in the card's platform-links row.
 const showcase = [
   {
     title: "Frutz",
@@ -12,6 +12,7 @@ const showcase = [
     blurb: "A colorful retro arcade shoot-'em-up, out now on Steam.",
     image: "img/showcase/frutz.jpg",
     links: [
+      { label: "Website", url: "https://brokenwallsstudios.com/games/frutz" },
       { label: "Steam", url: "https://store.steampowered.com/app/4673470/Frutz/" },
     ],
   },
@@ -32,6 +33,7 @@ const showcase = [
     blurb: "The classic sliding-tile puzzle, polished for mobile and TV.",
     image: "img/showcase/2048-classic.jpg",
     links: [
+      { label: "Website", url: "https://brokenwallsstudios.com/games/2048-classic" },
       { label: "App Store", url: "https://apps.apple.com/us/app/2048-classic/id957822053" },
       { label: "Google Play", url: "https://play.google.com/store/apps/details?id=brokenwallsstudios.games.original2048" },
     ],
@@ -42,6 +44,7 @@ const showcase = [
     blurb: "Run, jump, shoot, and swing your way to a high score.",
     image: "img/showcase/an-indie-game.png",
     links: [
+      { label: "Website", url: "https://brokenwallsstudios.com/games/an-indie-game" },
       { label: "App Store", url: "https://apps.apple.com/us/app/an-indie-game/id476114460" },
       { label: "Google Play", url: "https://play.google.com/store/apps/details?id=brokenwallsstudios.games.anindiegame_" },
     ],
@@ -52,6 +55,7 @@ const showcase = [
     blurb: "The sequel — more action, more mayhem, higher scores.",
     image: "img/showcase/an-indie-game-2.png",
     links: [
+      { label: "Website", url: "https://brokenwallsstudios.com/games/an-indie-game-2" },
       { label: "App Store", url: "https://apps.apple.com/us/app/an-indie-game-2/id879950297" },
       { label: "Google Play", url: "https://play.google.com/store/apps/details?id=brokenwallsstudios.games.anindiegame_2" },
     ],
@@ -62,6 +66,7 @@ const showcase = [
     blurb: "Pop dots and chase high scores in quick, colorful rounds.",
     image: "img/showcase/sakuru.jpg",
     links: [
+      { label: "Website", url: "https://brokenwallsstudios.com/games/sakuru" },
       { label: "App Store", url: "https://apps.apple.com/us/app/sakuru/id879936882" },
       { label: "Google Play", url: "https://play.google.com/store/apps/details?id=brokenwallsstudios.games.sakuru" },
     ],
