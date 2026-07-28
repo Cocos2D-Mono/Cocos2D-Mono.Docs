@@ -16,8 +16,8 @@ CCDirector.SharedDirector.PushScene(new PauseScene());         // overlay, keep 
 CCDirector.SharedDirector.PopScene();                          // return to it
 ```
 
-- `RunWithScene` starts the very first scene; everything after is `ReplaceScene`.
-- `PushScene`/`PopScene` is for temporary overlays (pause, settings) where the underlying scene should survive untouched — cheaper than rebuilding, and it keeps gameplay state alive by construction.
+- `RunWithScene` starts the very first scene only; from then on, `ReplaceScene` is the normal navigation between scenes.
+- `PushScene`/`PopScene` is the exception to that: temporary overlays (pause, settings) where the underlying scene should survive untouched — cheaper than rebuilding, and it keeps gameplay state alive by construction.
 - Transitions wrap the *incoming* scene: `ReplaceScene(new CCTransitionFade(0.5f, next))`.
 
 ## Node lifecycle: build → enter → exit
