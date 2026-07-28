@@ -1,0 +1,8 @@
+{
+  "label": "Best Practices",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "The recommended way to use Cocos2d-Mono — opinions the engine's own development settled on, several of them learned the hard way."
+  }
+}
