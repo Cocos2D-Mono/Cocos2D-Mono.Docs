@@ -36,8 +36,8 @@ Learning by example is often the best approach. You can find complete sample pro
 To deepen your understanding of cocos2d-mono, consider these additional resources:
 
 ### Official Resources
-- **[Getting Started Guide](../getting-started/introduction.md)** - Essential information for beginners
-- **[Development Guide](../developing/overview.md)** - Best practices and development workflows
+- **[Getting Started Guide](../guides/getting-started/introduction.md)** - Essential information for beginners
+- **[Development Guide](../guides/developing/overview.md)** - Best practices and development workflows
 
 ### Community and Support
 - **[GitHub Discussions](https://github.com/Cocos2D-Mono/cocos2d-mono/discussions)** - Ask questions and share your knowledge

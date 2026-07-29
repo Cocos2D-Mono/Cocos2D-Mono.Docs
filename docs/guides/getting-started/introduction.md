@@ -41,7 +41,7 @@ We support a growing list of platforms across the desktop, mobile, and console s
 
 # One Package, Every Platform
 
-Cocos2D-Mono is distributed as a **single, multi-targeted NuGet package**. You add one reference — `Cocos2D-Mono` — and the build for your project's target framework is selected automatically: DesktopGL for cross-platform desktop (Windows, Linux, and macOS), WindowsDX for `net9.0-windows`, Android, or iOS.
+Cocos2D-Mono is distributed as a **single, multi-targeted NuGet package**. You add one reference — `Cocos2D-Mono` — and the build for your project's target framework is selected automatically: DesktopGL for cross-platform desktop (Windows, Linux, and macOS), WindowsDX for `net10.0-windows`, Android, or iOS.
 
 This replaces the older model, where each platform had its own package (`Cocos2D-Mono.DesktopGL`, `Cocos2D-Mono.Windows`, `Cocos2D-Mono.Android`, and so on). **Picking a platform-specific package is no longer a thing** — one package covers them all, so there's less to choose from, nothing to keep in sync between platforms, and a simpler upgrade path. A content-pipeline-free variant, `Cocos2D-Mono.Core`, is available for projects that don't use the MonoGame content pipeline, and the Box2D physics port ships as `Cocos2D-Mono.Box2D` (included automatically through the packages above).
 
@@ -60,7 +60,7 @@ We maintain an interactive test app that serves as our Test Bed across all suppo
 You can find it in the [Tests directory](https://github.com/Cocos2D-Mono/cocos2d-mono/tree/master/Tests "Tests"). To run it on the desktop:
 
 ```
-dotnet run --project Tests/Cocos2DMono.IntegrationTests/Cocos2DMono.IntegrationTests.csproj -f net9.0
+dotnet run --project Tests/Cocos2DMono.IntegrationTests/Cocos2DMono.IntegrationTests.csproj -f net10.0
 ```
 
 **LINUX SETUP NOTE:** There are some fonts used within the Test Bed not natively found on Linux, please run the following command to add the missing fonts:
