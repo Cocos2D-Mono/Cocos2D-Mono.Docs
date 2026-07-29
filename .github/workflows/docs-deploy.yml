@@ -33,26 +33,45 @@ jobs:
       - name: 🧰 Install DocFX
         run: dotnet tool install -g docfx
 
-      # DocFX only needs the net9.0 build of the library. -p:TargetFrameworks=net9.0
-      # narrows the multi-targeted project to that one TFM for BOTH restore and build:
-      # without it, MSBuild/NuGet still evaluate the android + ios TFMs and the build
-      # fails on this runner, which installs no mobile workloads. (-f is not a
-      # substitute: it selects an inner build but does not stop the other TFMs from
-      # being evaluated. With TargetFrameworks already narrowed, -f is redundant.)
+      # DocFX only needs the desktop (base TFM) build of the library, and this runner
+      # installs no mobile workloads, so the multi-targeted project has to be narrowed
+      # to a single TFM for BOTH restore and build. The engine exposes that dial as
+      # $(Cocos2DTargetFrameworks) (repo-root Directory.Build.props); overriding
+      # TargetFrameworks directly is NOT equivalent, because every per-TFM condition in
+      # the csproj compares against $(Cocos2DBaseTfm)/$(Cocos2DWindowsTfm)/... - an
+      # unknown value such as net9.0 matches none of them, so no MonoGame.Framework.*
+      # package is referenced and the build dies with "The MonoGamePlatform property was
+      # not defined in the project!". The base TFM is read from the engine checkout so a
+      # .NET bump there (net9.0 -> net10.0 in 2.6.0) carries over without an edit here.
+      - name: 🎯 Resolve engine base TFM
+        run: |
+          cd cocos2d-mono
+          $tfm = (dotnet msbuild src/Cocos2DMono/Cocos2DMono.csproj -getProperty:Cocos2DBaseTfm).Trim()
+          if (-not $tfm) { throw "Could not resolve Cocos2DBaseTfm from the cocos2d-mono checkout" }
+          Write-Host "Engine base TFM: $tfm"
+          "COCOS2D_BASE_TFM=$tfm" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: pwsh
+
       - name: 📦 Restore API project
         run: |
           cd cocos2d-mono
-          dotnet restore src/Cocos2DMono/Cocos2DMono.csproj -p:TargetFrameworks=net9.0
+          dotnet restore src/Cocos2DMono/Cocos2DMono.csproj -p:Cocos2DTargetFrameworks=$env:COCOS2D_BASE_TFM
 
       - name: 📖 Build API project
         run: |
           cd cocos2d-mono
-          dotnet build src/Cocos2DMono/Cocos2DMono.csproj -c Release -p:TargetFrameworks=net9.0 --no-restore
+          dotnet build src/Cocos2DMono/Cocos2DMono.csproj -c Release -p:Cocos2DTargetFrameworks=$env:COCOS2D_BASE_TFM --no-restore
 
+      # The engine's docfx.json hardcodes the TFM in the assembly paths it reads, so it
+      # lags behind a .NET bump. Point it at whatever TFM was actually just built.
       - name: 📘 Generate DocFX Metadata
         run: |
           cd cocos2d-mono/docfx
+          $config = Get-Content docfx.json -Raw
+          $config = [regex]::Replace($config, 'net\d+\.\d+', $env:COCOS2D_BASE_TFM)
+          Set-Content docfx.json -Value $config
           docfx metadata
+        shell: pwsh
 
       - name: 📝 Copy DocFX output to docs
         run: |
