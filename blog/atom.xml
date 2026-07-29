@@ -2,11 +2,56 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://cocos2d-mono.dev/blog</id>
     <title>Cocos2d-Mono Blog</title>
-    <updated>2026-07-24T00:00:00.000Z</updated>
+    <updated>2026-07-29T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://cocos2d-mono.dev/blog"/>
     <subtitle>Cocos2d-Mono Blog</subtitle>
     <icon>https://cocos2d-mono.dev/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Cocos2D-Mono 2.6.0 is now out!]]></title>
+        <id>https://cocos2d-mono.dev/blog/2.6.0-release</id>
+        <link href="https://cocos2d-mono.dev/blog/2.6.0-release"/>
+        <updated>2026-07-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Release Logo]]></summary>
+        <content type="html"><![CDATA[<p><img decoding="async" loading="lazy" alt="Release Logo" src="https://cocos2d-mono.dev/assets/images/logo-new-release-a00e319b06d8816c2ed71b8b28debe4c.png" width="1500" height="500" class="img_ev3q"></p>
+<p>Cocos2D-Mono <strong>2.6.0</strong> is here — the platform-line release. The engine now runs on <strong>.NET 10 and MonoGame 3.8.5</strong>, and the migration is one step: retarget your game to .NET 10 and bump the package. No API changes, no code changes. The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/2.6.0" target="_blank" rel="noopener noreferrer" class="">release notes</a> have the full rundown, and the <a class="" href="https://cocos2d-mono.dev/docs/guides/developing/migrating-to-2.6.0">migration guide</a> walks through the retarget.</p>
+<p>When 2.5.12 shipped we said the 2.6.0 line was underway — here it is, two weeks later.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-one-step-migration">The One-Step Migration<a href="https://cocos2d-mono.dev/blog/2.6.0-release#the-one-step-migration" class="hash-link" aria-label="Direct link to The One-Step Migration" title="Direct link to The One-Step Migration" translate="no">​</a></h2>
+<div class="language-diff codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-diff codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#393A34"><span class="token plain">- &lt;TargetFramework&gt;net9.0&lt;/TargetFramework&gt;</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">+ &lt;TargetFramework&gt;net10.0&lt;/TargetFramework&gt;</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">- &lt;PackageReference Include="Cocos2D-Mono" Version="2.5.12" /&gt;</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">+ &lt;PackageReference Include="Cocos2D-Mono" Version="2.6.0" /&gt;</span><br></div></code></pre></div></div>
+<p>That's it. Desktop targets <code>net10.0</code> (or <code>net10.0-windows</code> for WindowsDX), mobile targets <code>net10.0-android</code> / <code>net10.0-ios</code>. One thing worth knowing: Apple's version numbering jumped, so explicit iOS platform pins are now <code>ios26.0</code> — details in the <a class="" href="https://cocos2d-mono.dev/docs/guides/developing/migrating-to-2.6.0">migration guide</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-underneath">What's Underneath<a href="https://cocos2d-mono.dev/blog/2.6.0-release#whats-underneath" class="hash-link" aria-label="Direct link to What's Underneath" title="Direct link to What's Underneath" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>MonoGame 3.8.5</strong> — MonoGame's biggest release in years: a new native core, ARM64 support, and Vulkan/Direct3D 12 backends in preview. Cocos2D-Mono ships on the proven DesktopGL and WindowsDX backends today, and the new preview backends are firmly on our radar as they stabilize.</li>
+<li class=""><strong>.NET 10</strong> — the current LTS, replacing the now out-of-support .NET 9. Modern C#, current tooling, long support runway.</li>
+<li class=""><strong>Future-proofing</strong> — the engine migrated off every API MonoGame has marked for removal, with identical behavior.</li>
+</ul>
+<p>Before release, the full stack was validated end-to-end: every target compiles clean, the unit suite passes on .NET 10, and the interactive test app was run scene-by-scene on both desktop backends — sprites, particles, every label backend, tilemaps, transitions, input, audio, and the Box2D testbed.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="also-new-best-practices-guides">Also New: Best Practices Guides<a href="https://cocos2d-mono.dev/blog/2.6.0-release#also-new-best-practices-guides" class="hash-link" aria-label="Direct link to Also New: Best Practices Guides" title="Direct link to Also New: Best Practices Guides" translate="no">​</a></h2>
+<p>Shipping alongside this release is a new <strong><a class="" href="https://cocos2d-mono.dev/docs/guides/developing/best-practices/">Best Practices</a></strong> documentation section — six opinionated guides covering the gap between getting started and the API reference: which label type to pick (and why it matters for porting), content pipeline or not, hot-path collections, platform-specific code, saving game data, and scene lifecycle conventions. These are the opinions the engine's own development settled on — written down so you don't have to learn them the hard way.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="nuget-packages">NuGet Packages<a href="https://cocos2d-mono.dev/blog/2.6.0-release#nuget-packages" class="hash-link" aria-label="Direct link to NuGet Packages" title="Direct link to NuGet Packages" translate="no">​</a></h2>
+<ul>
+<li class="">
+<p><strong>Cocos2D-Mono</strong> (Windows, Linux, macOS, Android, iOS): <a href="https://www.nuget.org/packages/Cocos2D-Mono/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Core</strong> — same engine, no content-pipeline dependency: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Core/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Core</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Box2D</strong> — the Box2D physics port: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Box2D/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Box2D</a></p>
+</li>
+</ul>
+<p>The samples and Visual Studio project templates are moving to 2.6.0 as well — they're next in the release train.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-next">What's Next<a href="https://cocos2d-mono.dev/blog/2.6.0-release#whats-next" class="hash-link" aria-label="Direct link to What's Next" title="Direct link to What's Next" translate="no">​</a></h2>
+<p>With the platform line current, the roadmap continues: as noted before, <strong>console support — starting with PlayStation 5 — remains in active development</strong>, and MonoGame 3.8.5's new backends (Vulkan on desktop, Direct3D 12) open doors we intend to walk through as they mature.</p>
+<p>Thanks, as always, for being part of it. GO COCOS NUTS!</p>]]></content>
+        <author>
+            <name>Brandon</name>
+            <uri>https://github.com/brandmooffin</uri>
+        </author>
+        <category label="update" term="update"/>
+        <category label="release" term="release"/>
+        <category label="2.6.0" term="2.6.0"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Cocos2D-Mono 2.5.12 is now out!]]></title>
         <id>https://cocos2d-mono.dev/blog/2.5.12-release</id>

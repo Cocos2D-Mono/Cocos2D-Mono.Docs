@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkdocs||=[]).push([[38947],{56600(t){t.exports=JSON.parse('{"authors":[{"name":"Brandon","title":"Makes things","url":"https://github.com/brandmooffin","imageURL":"https://avatars.githubusercontent.com/u/1774581?v=4","key":"brandmooffin","page":null,"count":13}]}')}}]);
