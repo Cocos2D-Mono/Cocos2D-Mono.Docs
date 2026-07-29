@@ -38,7 +38,7 @@ If you pin an explicit iOS platform version in your TFM, note that Apple's versi
 ## Prerequisites
 
 - The **.NET 10 SDK** is required to build.
-- Mobile targets need the .NET 10 workloads: `dotnet workload install android ios` (installed automatically with current Visual Studio versions).
+- Mobile targets need the .NET 10 `android`/`ios` workloads — included with Visual Studio's mobile development workloads, or installed from the CLI with `dotnet workload install android ios`.
 
 ## What changed underneath
 
@@ -50,4 +50,4 @@ The full stack was validated end-to-end before release: all targets compile clea
 
 ## Coming from earlier than 2.5.12?
 
-Apply the migrations in order: the [2.5.11 guide](./migrating-to-2.5.11) covers the move from the per-platform packages to the consolidated ones (that's the big one), then 2.5.12 and this release are drop-in steps from there.
+Apply the migrations in order: the [2.5.11 guide](./migrating-to-2.5.11.md) covers the move from the per-platform packages to the consolidated ones (that's the big one), then 2.5.12 and this release are drop-in steps from there.

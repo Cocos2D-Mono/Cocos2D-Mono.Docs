@@ -24,7 +24,7 @@ State the platforms a branch is **for** — never the platforms it isn't:
 #endif
 
 // ❌ "Everything that isn't desktop" - silently captures every FUTURE platform too.
-#if !WINDOWS && !MACOS && !LINUX
+#if !WINDOWSGL && !WINDOWS && !MACOS && !LINUX
     ReadAccelerometer();
 #endif
 ```

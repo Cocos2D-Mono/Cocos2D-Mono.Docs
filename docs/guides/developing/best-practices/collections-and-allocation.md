@@ -37,7 +37,7 @@ The exposed internals come with rules:
 
 ## Array pooling: `UseArrayPool`
 
-Construct with `new CCRawList<T>(capacity, useArrayPool: true)` and grow/clear cycles rent from `ArrayPool<T>.Shared` instead of allocating fresh arrays. In the engine's benchmarks this made the pooled path **~21% faster with near-zero allocation** — it's why the engine's own vertex and particle buffers use it.
+Construct with `new CCRawList<T>(capacity, useArrayPool: true)` and grow/clear cycles rent from `ArrayPool<T>.Shared` instead of allocating fresh arrays. In the engine's own BenchmarkDotNet comparison of the pooled vs. unpooled grow/clear cycle (desktop runtime), the pooled path measured **~21% faster with near-zero allocation**. Treat that as indicative rather than universal — it's why the engine's vertex and particle buffers use pooling, but profile your own workload before assuming the same win.
 
 - Use it for **long-lived, frequently-resized** collections (per-frame vertex lists, particle pools).
 - Call `Clear(true)` when you're done with a pooled list so the buffer returns to the pool.

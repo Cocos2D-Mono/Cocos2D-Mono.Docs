@@ -23,7 +23,7 @@ var chat = new CCLabel(message, "Arial", 22);
 
 ## The opinion: default to `CCLabelBMFont`
 
-Dynamic labels depend on a platform having a system font store to rasterize from. Desktop and mobile do. **Consoles do not** — there is no OS font service to call, so dynamic labels simply have nothing to render with there. If your game ships text through `CCLabel`/`CCLabelTTF` and you later target a console, every one of those call sites becomes porting work.
+Dynamic labels depend on a platform having a system font store to rasterize from. Desktop and mobile do. **Consoles generally do not** — on the console targets explored in the engine's own porting work, there was no OS font service for dynamic labels to call, leaving them nothing to render with. If your game ships text through `CCLabel`/`CCLabelTTF` and you later target a console, expect every one of those call sites to become porting work.
 
 Bitmap fonts work identically everywhere the engine runs, because the glyphs are just texture data you shipped.
 
