@@ -14,6 +14,7 @@ By the end of this part, you'll have:
 - Stomp-to-defeat: land on an enemy for points and a bounce
 - Side-hit consequences: touch an enemy and the player respawns
 - A new collision category wired into the filtering system from Part 2
+- A classic Box2D lesson: why bodies can't be destroyed during contact callbacks, and the deferred-cleanup pattern
 
 ## Prerequisites
 
@@ -135,7 +136,14 @@ namespace Platformer
         public void Update(float dt)
         {
             if (_isDefeated)
+            {
+                // Deferred cleanup: Defeat runs inside a contact callback,
+                // while the world is locked mid-step and DestroyBody is
+                // silently ignored. Update runs after the step, so the
+                // body can be destroyed for real here.
+                RemoveFromWorld();
                 return;
+            }
 
             // Sync the sprite with the physics body
             Position = PhysicsHelper.ToCocosVector(_body.Position);
@@ -159,8 +167,10 @@ namespace Platformer
 
             _isDefeated = true;
 
-            // Remove from the physics world (same pattern as Collectible.Collect)
-            RemoveFromWorld();
+            // The body is NOT destroyed here: Defeat is called from a
+            // contact callback, while the physics world is locked mid-step
+            // and silently ignores DestroyBody. Update destroys it on the
+            // next frame, once the step has finished.
 
             // Squash, fade, and remove the sprite
             RunAction(new CCSequence(
@@ -201,6 +211,14 @@ namespace Platformer
 ```
 
 The "AI" here is deliberately simple — walk until a bound, turn around — and that's the point: enemy behavior is just **per-frame logic driving a physics body**, exactly like the player's movement in Part 3. Chasing, jumping, or line-of-sight behaviors are all upgrades to this one `Update` method.
+
+:::warning Why Defeat doesn't destroy the body
+
+`Defeat` is called from `BeginContact`, which runs *inside* `world.Step` — while the world is **locked**. Box2D silently ignores `DestroyBody` on a locked world, so destroying the body there would *appear* to work while actually leaving an invisible solid body behind: a ghost platform hanging in the air where the enemy died, that the player can stand on.
+
+The rule: **contact callbacks only mark state — mutate the world after the step**. `Defeat` sets `_isDefeated`; `Update`, which our game loop runs after `world.Step`, performs the real `RemoveFromWorld`.
+
+:::
 
 ## Step 3: Player Helpers
 
@@ -357,6 +375,8 @@ Compare against the [Part 6 checkpoint](https://github.com/Cocos2D-Mono/cocos2d-
 ## Troubleshooting
 
 **Enemies fall through the floor** — `Platform.cs` must include `CATEGORY_ENEMY` in its `maskBits` (Step 1). A collision only happens when each side's mask accepts the other's category — the enemy accepting platforms isn't enough.
+
+**An invisible platform floats where a defeated enemy stood** — the body was "destroyed" during a contact callback. The world is locked mid-step and silently ignores `DestroyBody`, so the solid body survived. Defer destruction to after the step (see the warning in Step 2).
 
 **The player passes through enemies** — check that the player's `maskBits` includes `CATEGORY_ENEMY` *and* the enemy's `maskBits` includes `CATEGORY_PLAYER`; filtering must agree from both sides.
 
