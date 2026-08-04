@@ -39,6 +39,17 @@ fixtureDef.filter.categoryBits = PhysicsHelper.CATEGORY_PLAYER;
 fixtureDef.filter.maskBits = PhysicsHelper.CATEGORY_PLATFORM | PhysicsHelper.CATEGORY_COLLECTIBLE | PhysicsHelper.CATEGORY_ENEMY;
 ```
 
+Platforms need the same treatment. In `Platform.cs`, the fixture's mask currently accepts only the player — and Box2D filtering only allows a collision when **each side's mask accepts the other's category**. Leave this out and enemies fall straight through the floor at spawn:
+
+```csharp
+// Set collision filtering
+b2Fixture fixture = _body.FixtureList;
+b2Filter filter = fixture.Filter;
+filter.categoryBits = PhysicsHelper.CATEGORY_PLATFORM;
+filter.maskBits = PhysicsHelper.CATEGORY_PLAYER | PhysicsHelper.CATEGORY_ENEMY;
+fixture.SetFilterData(filter);
+```
+
 ## Step 2: The Enemy Class
 
 Create `Enemy.cs`. Structurally it's a cousin of `Player`: a dynamic Box2D body under a sprite, plus a thin sensor box — except the sensor sits on the enemy's **head**, because that's where stomps happen.
@@ -149,8 +160,7 @@ namespace Platformer
             _isDefeated = true;
 
             // Remove from the physics world (same pattern as Collectible.Collect)
-            _body.World.DestroyBody(_body);
-            _body = null;
+            RemoveFromWorld();
 
             // Squash, fade, and remove the sprite
             RunAction(new CCSequence(
@@ -164,6 +174,15 @@ namespace Platformer
             CCSimpleAudioEngine.SharedEngine.PlayEffect("land");
 
             gameLayer.IncreaseScore(25);
+        }
+
+        public void RemoveFromWorld()
+        {
+            if (_body != null)
+            {
+                _body.World.DestroyBody(_body);
+                _body = null;
+            }
         }
 
         // User data for the head sensor - lets the contact listener recognize
@@ -312,11 +331,18 @@ private void RestartGame(object sender)
     // Reset score
     _score = 0;
 
+    // Destroy enemy physics bodies before rebuilding the level -
+    // removing the sprites alone would leave invisible bodies behind
+    foreach (Enemy enemy in _enemies)
+        enemy.RemoveFromWorld();
     _enemies.Clear();
+
     RemoveAllChildren();
     CreateLevel();
 }
 ```
+
+Destroying the bodies matters: `RemoveAllChildren` only removes the *sprites*. A Box2D body lives in the world, not the scene graph — skip this and every restart leaves invisible enemy bodies standing where the old ones were.
 
 ## 🎯 Checkpoint: Enemies
 
@@ -329,6 +355,8 @@ Run the game. You should see:
 Compare against the [Part 6 checkpoint](https://github.com/Cocos2D-Mono/cocos2d-mono-samples/tree/main/Tutorial%20Samples/Platformer/Checkpoints/Part%206) if anything differs.
 
 ## Troubleshooting
+
+**Enemies fall through the floor** — `Platform.cs` must include `CATEGORY_ENEMY` in its `maskBits` (Step 1). A collision only happens when each side's mask accepts the other's category — the enemy accepting platforms isn't enough.
 
 **The player passes through enemies** — check that the player's `maskBits` includes `CATEGORY_ENEMY` *and* the enemy's `maskBits` includes `CATEGORY_PLAYER`; filtering must agree from both sides.
 
