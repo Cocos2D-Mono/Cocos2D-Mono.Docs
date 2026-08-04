@@ -90,6 +90,10 @@ namespace Platformer
             _patrolMinX = patrolMinX;
             _patrolMaxX = patrolMaxX;
 
+            // Start the sprite at the spawn point - otherwise the first frame
+            // draws at (0,0) before Update syncs it to the physics body
+            Position = new CCPoint(x, y);
+
             // Create physics body (dynamic, like the player: it walks and falls)
             b2BodyDef bodyDef = new b2BodyDef();
             bodyDef.type = b2BodyType.b2_dynamicBody;
@@ -130,6 +134,12 @@ namespace Platformer
             b2FixtureDef headFixtureDef = new b2FixtureDef();
             headFixtureDef.shape = headShape;
             headFixtureDef.isSensor = true;
+            // Explicit filter: an unset filter defaults to category 0x0001 -
+            // the same value as CATEGORY_PLAYER - with mask 0xFFFF, so the
+            // head would masquerade as the player in category checks and
+            // generate contacts with platforms, coins, and other enemies.
+            headFixtureDef.filter.categoryBits = PhysicsHelper.CATEGORY_ENEMY;
+            headFixtureDef.filter.maskBits = PhysicsHelper.CATEGORY_PLAYER;
 
             b2Fixture headSensor = _body.CreateFixture(headFixtureDef);
             headSensor.UserData = new HeadSensorUserData(this);
@@ -244,6 +254,11 @@ public void Respawn()
     // Reset to the starting position
     _body.SetTransform(new b2Vec2(100 / PhysicsHelper.PTM_RATIO, 300 / PhysicsHelper.PTM_RATIO), 0);
     _body.LinearVelocity = b2Vec2.Zero;
+
+    // Fresh spawn state - a player hit in mid-air shouldn't carry
+    // exhausted jumps into the respawn
+    _jumpCount = 0;
+    _canJump = false;
 }
 
 public void Bounce()
@@ -300,6 +315,14 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
         !fixtureB.IsSensor &&
         fixtureB.Filter.categoryBits == PhysicsHelper.CATEGORY_PLAYER)
     {
+        // A stomp can begin the sensor contact and this body contact
+        // in the same physics step, and Box2D reports them in an
+        // unspecified order. If the player is falling from above,
+        // let the stomp win instead of counting it as damage.
+        if (fixtureB.Body.LinearVelocity.y <= 0 &&
+            fixtureB.Body.Position.y > fixtureA.Body.Position.y)
+            return;
+
         if (enemy.Parent is GameLayer gameLayer)
         {
             gameLayer.OnPlayerHit();
@@ -310,7 +333,9 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
 
 :::tip The IsSensor guard
 
-A stomp and a side hit can happen in the *same physics step* — the player's foot sensor overlaps the enemy's head sensor while the foot sensor also brushes the enemy's body box. The `!fixtureB.IsSensor` check ensures only the player's **solid body** fixture counts as taking a hit, so a clean stomp never punishes the player. Subtle contact-filtering details like this are where platformers live or die.
+A stomp and a side hit can happen in the *same physics step* — the player's foot sensor overlaps the enemy's head sensor while the foot sensor also brushes the enemy's body box. The `!fixtureB.IsSensor` check ensures only the player's **solid body** fixture counts as taking a hit, so a clean stomp never punishes the player.
+
+The falling-from-above guard handles the other half of the problem: the player's *body* also touches the enemy's body during a stomp, and Box2D reports same-step contacts in an unspecified order — without the guard, the body contact could register as damage before the stomp contact is processed. Subtle contact-handling details like these are where platformers live or die.
 
 :::
 
