@@ -337,6 +337,42 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
 }
 ```
 
+One more listener change: **qualify the ground**. Since Part 3, the foot sensor has enabled jumping on *any* contact — fine when platforms were the only thing to touch, but the foot sensor now also brushes coins and enemy head sensors, and neither should hand the player a mid-air jump reset. Replace the foot-sensor blocks in `BeginContact`/`EndContact` with a shared helper that only counts solid platforms:
+
+```csharp
+public override void BeginContact(b2Contact contact)
+{
+    // Check for foot sensor contacts to enable jumping
+    CheckFootContact(contact.GetFixtureA(), contact.GetFixtureB(), true);
+    CheckFootContact(contact.GetFixtureB(), contact.GetFixtureA(), true);
+
+    // ...existing collectible and enemy checks
+}
+
+public override void EndContact(b2Contact contact)
+{
+    // Check for foot sensor contacts to disable jumping
+    CheckFootContact(contact.GetFixtureA(), contact.GetFixtureB(), false);
+    CheckFootContact(contact.GetFixtureB(), contact.GetFixtureA(), false);
+}
+
+private void CheckFootContact(b2Fixture fixtureA, b2Fixture fixtureB, bool began)
+{
+    Player.FootSensorUserData footData = fixtureA.UserData as Player.FootSensorUserData;
+    if (footData == null)
+        return;
+
+    // Only solid platform ground counts as standing on something.
+    // The foot sensor also brushes coins and enemy head sensors,
+    // and those must not reset the player's jumps mid-air.
+    if (fixtureB.IsSensor ||
+        fixtureB.Filter.categoryBits != PhysicsHelper.CATEGORY_PLATFORM)
+        return;
+
+    footData.Player.SetCanJump(began);
+}
+```
+
 :::tip The IsSensor guard
 
 A stomp and a side hit can happen in the *same physics step* — the player's foot sensor overlaps the enemy's head sensor while the foot sensor also brushes the enemy's body box. The `!fixtureB.IsSensor` check ensures only the player's **solid body** fixture counts as taking a hit, so a clean stomp never punishes the player.
@@ -458,6 +494,8 @@ Compare against the [Part 6 checkpoint](https://github.com/Cocos2D-Mono/cocos2d-
 **Enemies die when the player jumps up past them** — the stomp branch is missing the `IsFalling` check. The foot-over-head contact also fires while rising through the head zone; only a falling player should stomp.
 
 **A clean stomp sometimes also counts as a side hit** — the listener is acting inside `BeginContact` instead of recording. Same-step contact order is unspecified, so the body contact can be processed before the stomp; record both and resolve stomps first after the step (Steps 4–5).
+
+**The player gets extra jumps by brushing coins or enemy heads mid-air** — `SetCanJump` is firing on every foot-sensor contact. Only solid `CATEGORY_PLATFORM` fixtures count as ground (see `CheckFootContact` in Step 4).
 
 **Stomping also respawns the player** — the `!fixtureB.IsSensor` guard is missing from the side-hit branch (see the tip in Step 4).
 
