@@ -148,14 +148,7 @@ namespace Platformer
         public void Update(float dt)
         {
             if (_isDefeated)
-            {
-                // Deferred cleanup: Defeat runs inside a contact callback,
-                // while the world is locked mid-step and DestroyBody is
-                // silently ignored. Update runs after the step, so the
-                // body can be destroyed for real here.
-                RemoveFromWorld();
                 return;
-            }
 
             // Sync the sprite with the physics body
             Position = PhysicsHelper.ToCocosVector(_body.Position);
@@ -179,10 +172,11 @@ namespace Platformer
 
             _isDefeated = true;
 
-            // The body is NOT destroyed here: Defeat is called from a
-            // contact callback, while the physics world is locked mid-step
-            // and silently ignores DestroyBody. Update destroys it on the
-            // next frame, once the step has finished.
+            // Defeat is resolved from GameLayer.Update, AFTER the physics
+            // step - never from inside a contact callback, where the world
+            // is locked and silently ignores DestroyBody. That makes it
+            // safe to destroy the body right here.
+            RemoveFromWorld();
 
             // Squash, fade, and remove the sprite
             RunAction(new CCSequence(
@@ -224,11 +218,14 @@ namespace Platformer
 
 The "AI" here is deliberately simple — walk until a bound, turn around — and that's the point: enemy behavior is just **per-frame logic driving a physics body**, exactly like the player's movement in Part 3. Chasing, jumping, or line-of-sight behaviors are all upgrades to this one `Update` method.
 
-:::warning Why Defeat doesn't destroy the body
+:::warning The golden rule: record in callbacks, resolve after the step
 
-`Defeat` is called from `BeginContact`, which runs *inside* `world.Step` — while the world is **locked**. Box2D silently ignores `DestroyBody` on a locked world, so destroying the body there would *appear* to work while actually leaving an invisible solid body behind: a ghost platform hanging in the air where the enemy died, that the player can stand on.
+`BeginContact` runs *inside* `world.Step`, while the world is **locked**. Two things follow:
 
-The rule: **contact callbacks only mark state — mutate the world after the step**. `Defeat` sets `_isDefeated`; `Update`, which our game loop runs after `world.Step`, performs the real `RemoveFromWorld`.
+1. **You can't mutate the world there.** Box2D silently ignores `DestroyBody` on a locked world — destroying a body in the callback would *appear* to work while actually leaving an invisible solid body behind: a ghost platform hanging where the enemy died.
+2. **You can't trust contact order.** A stomp's sensor contact and the accompanying body-to-body contact arrive in the same step, in unspecified order — acting on whichever the callback sees first makes the outcome random.
+
+So our contact listener only *records* what happened (Step 4), and `GameLayer.Update` resolves the results *after* the step (Step 5) — which is also why `Defeat` can safely destroy the body.
 
 :::
 
@@ -283,7 +280,25 @@ CheckEnemyContact(contact.GetFixtureA(), contact.GetFixtureB());
 CheckEnemyContact(contact.GetFixtureB(), contact.GetFixtureA());
 ```
 
-And the handler:
+Per the golden rule from Step 2, the listener never *acts* on a contact — it records the result for `GameLayer` to resolve after the step. Give it somewhere to record (this also needs `using System.Collections.Generic;` at the top of the file):
+
+```csharp
+public class ContactListener : b2ContactListener
+{
+    // Contact callbacks run in the middle of world.Step, while the world
+    // is locked and the order of same-step contacts is unspecified. So
+    // the callbacks below only RECORD what happened; GameLayer.Update
+    // resolves the results after the step.
+    private readonly List<Enemy> _pendingStomps = new List<Enemy>();
+    private readonly List<Enemy> _pendingSideHits = new List<Enemy>();
+
+    public List<Enemy> PendingStomps { get { return _pendingStomps; } }
+    public List<Enemy> PendingSideHits { get { return _pendingSideHits; } }
+
+    // ...existing code
+```
+
+And the handler — note that it only records:
 
 ```csharp
 private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
@@ -295,14 +310,13 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
 
     if (headData != null && footData != null)
     {
-        // Only a falling player squashes the enemy - the same contact
+        // Only a falling player scores a stomp - the same contact
         // fires when jumping UP past the head zone, and that shouldn't
-        // count as a stomp.
+        // count.
         if (footData.Player.IsFalling &&
-            headData.Enemy.Parent is GameLayer stompLayer)
+            !_pendingStomps.Contains(headData.Enemy))
         {
-            headData.Enemy.Defeat(stompLayer);
-            footData.Player.Bounce();
+            _pendingStomps.Add(headData.Enemy);
         }
         return;
     }
@@ -315,17 +329,9 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
         !fixtureB.IsSensor &&
         fixtureB.Filter.categoryBits == PhysicsHelper.CATEGORY_PLAYER)
     {
-        // A stomp can begin the sensor contact and this body contact
-        // in the same physics step, and Box2D reports them in an
-        // unspecified order. If the player is falling from above,
-        // let the stomp win instead of counting it as damage.
-        if (fixtureB.Body.LinearVelocity.y <= 0 &&
-            fixtureB.Body.Position.y > fixtureA.Body.Position.y)
-            return;
-
-        if (enemy.Parent is GameLayer gameLayer)
+        if (!_pendingSideHits.Contains(enemy))
         {
-            gameLayer.OnPlayerHit();
+            _pendingSideHits.Add(enemy);
         }
     }
 }
@@ -335,7 +341,7 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
 
 A stomp and a side hit can happen in the *same physics step* — the player's foot sensor overlaps the enemy's head sensor while the foot sensor also brushes the enemy's body box. The `!fixtureB.IsSensor` check ensures only the player's **solid body** fixture counts as taking a hit, so a clean stomp never punishes the player.
 
-The falling-from-above guard handles the other half of the problem: the player's *body* also touches the enemy's body during a stomp, and Box2D reports same-step contacts in an unspecified order — without the guard, the body contact could register as damage before the stomp contact is processed. Subtle contact-handling details like these are where platformers live or die.
+Record-and-resolve handles the other half: the player's *body* also touches the enemy's body during a stomp, and Box2D reports same-step contacts in an unspecified order. Because both events are only recorded, and the resolver processes stomps first, the stomp wins no matter which contact arrived first. Subtle contact-handling details like these are where platformers live or die.
 
 :::
 
@@ -361,7 +367,34 @@ _enemies.Add(platformEnemy);
 AddChild(platformEnemy);
 ```
 
-Drive them from `Update`, right after the player:
+In `Update`, right after `_world.Step(...)`, resolve what the listener recorded — stomps first, so a stomp always beats a side hit from the same step:
+
+```csharp
+// Update physics world
+_world.Step(dt, 8, 3);
+
+// Resolve enemy contacts recorded during the step. Stomps resolve
+// first, so when a stomp and a side hit arrive in the same step
+// the stomp always wins - regardless of Box2D's contact order.
+foreach (Enemy enemy in _contactListener.PendingStomps)
+{
+    if (!enemy.IsDefeated)
+    {
+        enemy.Defeat(this);
+        _player.Bounce();
+    }
+}
+_contactListener.PendingStomps.Clear();
+
+foreach (Enemy enemy in _contactListener.PendingSideHits)
+{
+    if (!enemy.IsDefeated)
+        OnPlayerHit();
+}
+_contactListener.PendingSideHits.Clear();
+```
+
+Then drive the enemies, right after the player:
 
 ```csharp
 foreach (Enemy enemy in _enemies)
@@ -391,6 +424,10 @@ private void RestartGame(object sender)
         enemy.RemoveFromWorld();
     _enemies.Clear();
 
+    // Drop any contact results recorded for the old level
+    _contactListener.PendingStomps.Clear();
+    _contactListener.PendingSideHits.Clear();
+
     RemoveAllChildren();
     CreateLevel();
 }
@@ -419,6 +456,8 @@ Compare against the [Part 6 checkpoint](https://github.com/Cocos2D-Mono/cocos2d-
 **The player can stand on top of a living enemy** — the head sensor must cover (and slightly overhang) the enemy's entire top. If it's narrower than the body box, a landing on an uncovered edge is physically supported by the solid body but never triggers the stomp — the player perches mid-air on an invisible ledge, and gets carried along as the enemy walks.
 
 **Enemies die when the player jumps up past them** — the stomp branch is missing the `IsFalling` check. The foot-over-head contact also fires while rising through the head zone; only a falling player should stomp.
+
+**A clean stomp sometimes also counts as a side hit** — the listener is acting inside `BeginContact` instead of recording. Same-step contact order is unspecified, so the body contact can be processed before the stomp; record both and resolve stomps first after the step (Steps 4–5).
 
 **Stomping also respawns the player** — the `!fixtureB.IsSensor` guard is missing from the side-hit branch (see the tip in Step 4).
 
