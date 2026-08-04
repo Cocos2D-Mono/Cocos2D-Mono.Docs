@@ -103,11 +103,17 @@ namespace Platformer
 
             _body = world.CreateBody(bodyDef);
 
-            // Body fixture - collides with platforms and the player
+            // Body fixture - collides with platforms and the player.
+            // Sized to the VISIBLE art, not the texture: player_idle's 64x64
+            // canvas is mostly transparent padding, with the ~26x31 character
+            // sitting bottom-center. Boxing the whole texture would let the
+            // empty air beside the enemy hit the player.
             b2PolygonShape shape = new b2PolygonShape();
             shape.SetAsBox(
-                ContentSize.Width * 0.4f / PhysicsHelper.PTM_RATIO,
-                ContentSize.Height * 0.45f / PhysicsHelper.PTM_RATIO);
+                ContentSize.Width * 0.2f / PhysicsHelper.PTM_RATIO,
+                ContentSize.Height * 0.25f / PhysicsHelper.PTM_RATIO,
+                new b2Vec2(0, -ContentSize.Height * 0.25f / PhysicsHelper.PTM_RATIO),
+                0);
 
             b2FixtureDef fixtureDef = new b2FixtureDef();
             fixtureDef.shape = shape;
@@ -120,15 +126,16 @@ namespace Platformer
             _body.CreateFixture(fixtureDef).UserData = this;
 
             // Head sensor - the player defeats the enemy by landing on this.
-            // Mirrors the player's foot sensor from Part 3, sitting on TOP of
-            // the body - and slightly WIDER than the body box. If it were
-            // narrower, the player could land on an uncovered edge of the
-            // solid body and stand there without triggering the stomp.
+            // The body box is bottom-aligned, so its top face - the visible
+            // head - sits at the sprite's vertical center (y = 0). The sensor
+            // is WIDER than the body box: wide enough that every position
+            // where the player can physically stand on the enemy registers
+            // as a stomp, leaving no edge to perch on.
             b2PolygonShape headShape = new b2PolygonShape();
             headShape.SetAsBox(
-                ContentSize.Width * 0.5f / PhysicsHelper.PTM_RATIO,
+                ContentSize.Width * 0.35f / PhysicsHelper.PTM_RATIO,
                 3f / PhysicsHelper.PTM_RATIO,
-                new b2Vec2(0, ContentSize.Height * 0.45f / PhysicsHelper.PTM_RATIO),
+                new b2Vec2(0, 0),
                 0);
 
             b2FixtureDef headFixtureDef = new b2FixtureDef();
@@ -268,6 +275,42 @@ public bool IsFalling
 {
     get { return _body.LinearVelocity.y <= 0; }
 }
+```
+
+While we're in `Player.cs`, fix a long-standing bug that enemy testing makes obvious: the double jump. The old `Jump()` re-derived `_canJump` from the jump count, but the foot sensor leaving the ground immediately sets `_canJump = false` — so the mid-air second jump never fired. Make the air jump an explicit rule instead:
+
+```csharp
+public void Jump()
+{
+    // First jump needs the ground under the foot sensor; the one
+    // mid-air follow-up is the double jump. (_canJump is the grounded
+    // flag; _jumpCount resets when the player lands.)
+    bool canAirJump = _jumpCount > 0 && _jumpCount < MAX_JUMPS;
+
+    if (_canJump || canAirJump)
+    {
+        _body.LinearVelocity = new b2Vec2(_body.LinearVelocity.x, JUMP_FORCE);
+        _jumpCount++;
+
+        _isRunning = false; // Stop running animation when jumping
+        // Play jump animation
+        StopAllActions();
+        RunAction(new CCAnimate(_jumpAnimation));
+
+        // Play jump sound
+        PlayJumpSound();
+    }
+}
+```
+
+The other half of that fix lives in `GameLayer`: `Jump()` was called on *every frame* Space was held, which burned both jumps back to back. Jump on the key-press edge instead (new field `_wasJumpPressed` next to the other input flags):
+
+```csharp
+// Jump on the key-press edge, not every held frame - otherwise
+// holding Space would burn both jumps back to back
+if (_isJumpPressed && !_wasJumpPressed)
+    _player.Jump();
+_wasJumpPressed = _isJumpPressed;
 ```
 
 ## Step 4: Teaching the Contact Listener About Enemies
@@ -496,6 +539,10 @@ Compare against the [Part 6 checkpoint](https://github.com/Cocos2D-Mono/cocos2d-
 **A clean stomp sometimes also counts as a side hit** — the listener is acting inside `BeginContact` instead of recording. Same-step contact order is unspecified, so the body contact can be processed before the stomp; record both and resolve stomps first after the step (Steps 4–5).
 
 **The player gets extra jumps by brushing coins or enemy heads mid-air** — `SetCanJump` is firing on every foot-sensor contact. Only solid `CATEGORY_PLATFORM` fixtures count as ground (see `CheckFootContact` in Step 4).
+
+**The double jump never fires** — two causes, both fixed in Step 3: `Jump()` must allow an explicit mid-air jump (`_jumpCount > 0 && _jumpCount < MAX_JUMPS`) rather than relying on `_canJump`, which the foot sensor clears the moment the player leaves the ground; and jumping must trigger on the key-press *edge*, or holding the key burns both jumps instantly.
+
+**Empty air beside the enemy hurts the player** — the fixtures are sized from `ContentSize`, but the texture has transparent padding around the visible art. Measure the art and build the boxes around it (see the body fixture in Step 2); a fixture sized to the full canvas reaches ~13px past each visible edge of this sprite.
 
 **Stomping also respawns the player** — the `!fixtureB.IsSensor` guard is missing from the side-hit branch (see the tip in Step 4).
 
