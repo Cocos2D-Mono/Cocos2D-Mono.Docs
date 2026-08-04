@@ -116,12 +116,14 @@ namespace Platformer
             _body.CreateFixture(fixtureDef).UserData = this;
 
             // Head sensor - the player defeats the enemy by landing on this.
-            // Mirrors the player's foot sensor from Part 3: a thin sensor box,
-            // this time sitting on TOP of the body.
+            // Mirrors the player's foot sensor from Part 3, sitting on TOP of
+            // the body - and slightly WIDER than the body box. If it were
+            // narrower, the player could land on an uncovered edge of the
+            // solid body and stand there without triggering the stomp.
             b2PolygonShape headShape = new b2PolygonShape();
             headShape.SetAsBox(
-                ContentSize.Width * 0.3f / PhysicsHelper.PTM_RATIO,
-                0.1f / PhysicsHelper.PTM_RATIO,
+                ContentSize.Width * 0.5f / PhysicsHelper.PTM_RATIO,
+                3f / PhysicsHelper.PTM_RATIO,
                 new b2Vec2(0, ContentSize.Height * 0.45f / PhysicsHelper.PTM_RATIO),
                 0);
 
@@ -222,7 +224,7 @@ The rule: **contact callbacks only mark state — mutate the world after the ste
 
 ## Step 3: Player Helpers
 
-The player needs two small additions in `Player.cs` — a reusable respawn (extract the existing fall-off-screen reset), and a bounce for successful stomps:
+The player needs a few small additions in `Player.cs` — a reusable respawn (extract the existing fall-off-screen reset), a bounce for successful stomps, and a falling check the stomp logic will use:
 
 ```csharp
 public void Update(float dt)
@@ -249,6 +251,11 @@ public void Bounce()
     // A small hop, used after stomping an enemy
     _body.LinearVelocity = new b2Vec2(_body.LinearVelocity.x, JUMP_FORCE * 0.6f);
 }
+
+public bool IsFalling
+{
+    get { return _body.LinearVelocity.y <= 0; }
+}
 ```
 
 ## Step 4: Teaching the Contact Listener About Enemies
@@ -273,7 +280,11 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
 
     if (headData != null && footData != null)
     {
-        if (headData.Enemy.Parent is GameLayer stompLayer)
+        // Only a falling player squashes the enemy - the same contact
+        // fires when jumping UP past the head zone, and that shouldn't
+        // count as a stomp.
+        if (footData.Player.IsFalling &&
+            headData.Enemy.Parent is GameLayer stompLayer)
         {
             headData.Enemy.Defeat(stompLayer);
             footData.Player.Bounce();
@@ -379,6 +390,10 @@ Compare against the [Part 6 checkpoint](https://github.com/Cocos2D-Mono/cocos2d-
 **An invisible platform floats where a defeated enemy stood** — the body was "destroyed" during a contact callback. The world is locked mid-step and silently ignores `DestroyBody`, so the solid body survived. Defer destruction to after the step (see the warning in Step 2).
 
 **The player passes through enemies** — check that the player's `maskBits` includes `CATEGORY_ENEMY` *and* the enemy's `maskBits` includes `CATEGORY_PLAYER`; filtering must agree from both sides.
+
+**The player can stand on top of a living enemy** — the head sensor must cover (and slightly overhang) the enemy's entire top. If it's narrower than the body box, a landing on an uncovered edge is physically supported by the solid body but never triggers the stomp — the player perches mid-air on an invisible ledge, and gets carried along as the enemy walks.
+
+**Enemies die when the player jumps up past them** — the stomp branch is missing the `IsFalling` check. The foot-over-head contact also fires while rising through the head zone; only a falling player should stomp.
 
 **Stomping also respawns the player** — the `!fixtureB.IsSensor` guard is missing from the side-hit branch (see the tip in Step 4).
 
