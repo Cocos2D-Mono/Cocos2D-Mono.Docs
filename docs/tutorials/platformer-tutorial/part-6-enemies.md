@@ -334,9 +334,11 @@ public class ContactListener : b2ContactListener
     // resolves the results after the step.
     private readonly List<Enemy> _pendingStomps = new List<Enemy>();
     private readonly List<Enemy> _pendingSideHits = new List<Enemy>();
+    private readonly List<Collectible> _pendingCollections = new List<Collectible>();
 
     public List<Enemy> PendingStomps { get { return _pendingStomps; } }
     public List<Enemy> PendingSideHits { get { return _pendingSideHits; } }
+    public List<Collectible> PendingCollections { get { return _pendingCollections; } }
 
     // ...existing code
 ```
@@ -379,6 +381,29 @@ private void CheckEnemyContact(b2Fixture fixtureA, b2Fixture fixtureB)
     }
 }
 ```
+
+The same rule retrofits Part 5's coins — their `Collect` also destroyed a body from inside the callback (silently ignored, leaking a ghost sensor per pickup). Record instead, and while here, collect on *any* PLAYER-category fixture rather than requiring the foot sensor specifically:
+
+```csharp
+private void CheckCollectibleContact(b2Fixture fixtureA, b2Fixture fixtureB)
+{
+    // Record a pickup when any PLAYER-category fixture touches a
+    // coin. Both player fixtures qualify (the body, and the foot
+    // sensor's default filter) - requiring a specific one would make
+    // pickups depend on which fixture happens to overlap first.
+    Collectible collectible = fixtureA.UserData as Collectible;
+    if (collectible != null && !collectible.IsCollected &&
+        fixtureB.Filter.categoryBits == PhysicsHelper.CATEGORY_PLAYER)
+    {
+        if (!_pendingCollections.Contains(collectible))
+        {
+            _pendingCollections.Add(collectible);
+        }
+    }
+}
+```
+
+`Collectible` needs the matching guard — a `_isCollected` flag mirroring the enemy's `_isDefeated` (public `IsCollected` property, set first thing in `Collect`, early-return if already set). Since `Collect` now runs after the step, its existing `DestroyBody` call finally works as written.
 
 One more listener change: **qualify the ground**. Since Part 3, the foot sensor has enabled jumping on *any* contact — fine when platforms were the only thing to touch, but the foot sensor now also brushes coins and enemy head sensors, and neither should hand the player a mid-air jump reset. Replace the foot-sensor blocks in `BeginContact`/`EndContact` with a shared helper that only counts solid platforms:
 
@@ -471,6 +496,13 @@ foreach (Enemy enemy in _contactListener.PendingSideHits)
         OnPlayerHit();
 }
 _contactListener.PendingSideHits.Clear();
+
+foreach (Collectible coin in _contactListener.PendingCollections)
+{
+    if (!coin.IsCollected)
+        coin.Collect(this);
+}
+_contactListener.PendingCollections.Clear();
 ```
 
 Then drive the enemies, right after the player:
@@ -491,28 +523,43 @@ public void OnPlayerHit()
 }
 ```
 
+Restarting deserves care, because **sprites and physics bodies have different lifetimes**: `RemoveAllChildren` only clears the scene graph, while every body the level created — player, platforms, coins, enemies — would live on invisibly in the world. The simplest airtight restart rebuilds the physics world itself. Extract the world setup from the constructor:
+
+```csharp
+private void CreatePhysicsWorld()
+{
+    // Initialize physics world with gravity
+    _world = new b2World(new b2Vec2(0, -10.0f));
+    _world.SetContactListener(_contactListener);
+}
+```
+
+(the constructor now just creates `_contactListener` and calls `CreatePhysicsWorld()`), and restart becomes:
+
 ```csharp
 private void RestartGame(object sender)
 {
     // Reset score
     _score = 0;
 
-    // Destroy enemy physics bodies before rebuilding the level -
-    // removing the sprites alone would leave invisible bodies behind
-    foreach (Enemy enemy in _enemies)
-        enemy.RemoveFromWorld();
+    // Sprites and physics bodies have different lifetimes:
+    // RemoveAllChildren only clears the scene graph, and bodies the
+    // level created (player, platforms, coins, enemies) would live
+    // on invisibly in the old world. Rebuilding the physics world
+    // from scratch guarantees no orphaned bodies survive a restart.
+    CreatePhysicsWorld();
     _enemies.Clear();
+    _platforms.Clear();
 
     // Drop any contact results recorded for the old level
     _contactListener.PendingStomps.Clear();
     _contactListener.PendingSideHits.Clear();
+    _contactListener.PendingCollections.Clear();
 
     RemoveAllChildren();
     CreateLevel();
 }
 ```
-
-Destroying the bodies matters: `RemoveAllChildren` only removes the *sprites*. A Box2D body lives in the world, not the scene graph — skip this and every restart leaves invisible enemy bodies standing where the old ones were.
 
 ## 🎯 Checkpoint: Enemies
 
@@ -543,6 +590,8 @@ Compare against the [Part 6 checkpoint](https://github.com/Cocos2D-Mono/cocos2d-
 **The double jump never fires** — two causes, both fixed in Step 3: `Jump()` must allow an explicit mid-air jump (`_jumpCount > 0 && _jumpCount < MAX_JUMPS`) rather than relying on `_canJump`, which the foot sensor clears the moment the player leaves the ground; and jumping must trigger on the key-press *edge*, or holding the key burns both jumps instantly.
 
 **Empty air beside the enemy hurts the player** — the fixtures are sized from `ContentSize`, but the texture has transparent padding around the visible art. Measure the art and build the boxes around it (see the body fixture in Step 2); a fixture sized to the full canvas reaches ~13px past each visible edge of this sprite.
+
+**Invisible obstacles appear after restarting** — the restart is rebuilding the scene but not the physics world. Bodies aren't removed by `RemoveAllChildren`; recreate the world (or destroy every body) before `CreateLevel` (see `RestartGame` in Step 5).
 
 **Stomping also respawns the player** — the `!fixtureB.IsSensor` guard is missing from the side-hit branch (see the tip in Step 4).
 
