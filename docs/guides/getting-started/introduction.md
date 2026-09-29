@@ -21,23 +21,27 @@ Cocos2D-Mono focuses more on the MonoGame Framework and removes the limitations 
 
 # Supported Platforms
 
-We support a growing list of platforms across the desktop, mobile, and console space. If there is a platform we don't support, please [make a request](https://github.com/Cocos2D-Mono/cocos2d-mono/issues).
+We support a growing list of platforms across desktop, mobile, and console. Support comes in three tiers, depending on how each platform's MonoGame dependency is distributed. If there is a platform we don't support, please [make a request](https://github.com/Cocos2D-Mono/cocos2d-mono/issues).
 
-- Desktop PCs
-  - Windows (OpenGL & DirectX)
-  - Linux (OpenGL)
-  - macOS (OpenGL)
-- Mobile/Tablet Devices
-  - Android (OpenGL)
-  - iOS (OpenGL)
-- Coming Soon
-  - iOS (Metal)
-  - tvOS (Metal)
-  - macOS (Metal)
-  - Xbox (XDK)
-  - Nintendo Switch
-  - PlayStation 4
-  - PlayStation 5
+**Packaged** — included in the NuGet packages, ready to use:
+
+- Desktop via DesktopGL: Windows, macOS, Linux (OpenGL)
+- Windows via WindowsDX (DirectX)
+- Android (OpenGL)
+- iOS (OpenGL)
+
+**Source only** — build the engine from source against our [MonoGame fork](https://github.com/Cocos2D-Mono/MonoGame):
+
+- Mac Catalyst
+- tvOS
+
+MonoGame publishes no package for these platforms, and a NuGet package only carries a platform when its MonoGame dependency can be restored from nuget.org — so they aren't in the packages. The engine's [README](https://github.com/Cocos2D-Mono/cocos2d-mono#platform-support) covers how to build them.
+
+**Registered console developers** — available on request, under NDA:
+
+- PlayStation 5, on the 2.5.x line
+
+Console support lives in a private repository, following the model MonoGame uses for its console frameworks. See the [roadmap](https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/ROADMAP.md#platforms) for how to get access.
 
 # One Package, Every Platform
 
