@@ -5,8 +5,8 @@
 <meta name="generator" content="Docusaurus v3.10.2">
 <title data-rh="true">Introduction | Cocos2d-Mono</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://cocos2d-mono.dev/docs/guides/getting-started/introduction"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Introduction | Cocos2d-Mono"><meta data-rh="true" name="description" content="Cocos2D-Mono"><meta data-rh="true" property="og:description" content="Cocos2D-Mono"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://cocos2d-mono.dev/docs/guides/getting-started/introduction"><link data-rh="true" rel="alternate" href="https://cocos2d-mono.dev/docs/guides/getting-started/introduction" hreflang="en"><link data-rh="true" rel="alternate" href="https://cocos2d-mono.dev/docs/guides/getting-started/introduction" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Getting Started","item":"https://cocos2d-mono.dev/docs/category/getting-started"},{"@type":"ListItem","position":2,"name":"Introduction","item":"https://cocos2d-mono.dev/docs/guides/getting-started/introduction"}]}</script><link rel="alternate" type="application/rss+xml" href="/blog/rss.xml" title="Cocos2d-Mono RSS Feed">
 <link rel="alternate" type="application/atom+xml" href="/blog/atom.xml" title="Cocos2d-Mono Atom Feed"><link rel="stylesheet" href="/assets/css/styles.c6a9a6a5.css">
-<script src="/assets/js/runtime~main.b8dd5373.js" defer="defer"></script>
-<script src="/assets/js/main.2d9a532b.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.b6357941.js" defer="defer"></script>
+<script src="/assets/js/main.0a7ce2cf.js" defer="defer"></script>
 </head>
 <body>
 <svg style="display: none;"><defs>
@@ -24,33 +24,25 @@
 <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/actions/workflows/status-android.yml" target="_blank" rel="noopener noreferrer" class=""><img decoding="async" loading="lazy" src="https://github.com/Cocos2D-Mono/cocos2d-mono/actions/workflows/status-android.yml/badge.svg" alt="Android" class="img_ev3q"></a>
 <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/actions/workflows/status-ios.yml" target="_blank" rel="noopener noreferrer" class=""><img decoding="async" loading="lazy" src="https://github.com/Cocos2D-Mono/cocos2d-mono/actions/workflows/status-ios.yml/badge.svg" alt="iOS" class="img_ev3q"></a></p>
 <h1>Supported Platforms</h1>
-<p>We support a growing list of platforms across the desktop, mobile, and console space. If there is a platform we don&#x27;t support, please <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/issues" target="_blank" rel="noopener noreferrer" class="">make a request</a>.</p>
+<p>We support a growing list of platforms across desktop, mobile, and console. Support comes in three tiers, depending on how each platform&#x27;s MonoGame dependency is distributed. If there is a platform we don&#x27;t support, please <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/issues" target="_blank" rel="noopener noreferrer" class="">make a request</a>.</p>
+<p><strong>Packaged</strong> — included in the NuGet packages, ready to use:</p>
 <ul>
-<li class="">Desktop PCs<!-- -->
-<ul>
-<li class="">Windows (OpenGL &amp; DirectX)</li>
-<li class="">Linux (OpenGL)</li>
-<li class="">macOS (OpenGL)</li>
-</ul>
-</li>
-<li class="">Mobile/Tablet Devices<!-- -->
-<ul>
+<li class="">Desktop via DesktopGL: Windows, macOS, Linux (OpenGL)</li>
+<li class="">Windows via WindowsDX (DirectX)</li>
 <li class="">Android (OpenGL)</li>
 <li class="">iOS (OpenGL)</li>
 </ul>
-</li>
-<li class="">Coming Soon<!-- -->
+<p><strong>Source only</strong> — build the engine from source against our <a href="https://github.com/Cocos2D-Mono/MonoGame" target="_blank" rel="noopener noreferrer" class="">MonoGame fork</a>:</p>
 <ul>
-<li class="">iOS (Metal)</li>
-<li class="">tvOS (Metal)</li>
-<li class="">macOS (Metal)</li>
-<li class="">Xbox (XDK)</li>
-<li class="">Nintendo Switch</li>
-<li class="">PlayStation 4</li>
-<li class="">PlayStation 5</li>
+<li class="">Mac Catalyst</li>
+<li class="">tvOS</li>
 </ul>
-</li>
+<p>MonoGame publishes no package for these platforms, and a NuGet package only carries a platform when its MonoGame dependency can be restored from nuget.org — so they aren&#x27;t in the packages. The engine&#x27;s <a href="https://github.com/Cocos2D-Mono/cocos2d-mono#platform-support" target="_blank" rel="noopener noreferrer" class="">README</a> covers how to build them.</p>
+<p><strong>Registered console developers</strong> — available on request, under NDA:</p>
+<ul>
+<li class="">PlayStation 5, on the 2.5.x line</li>
 </ul>
+<p>Console support lives in a private repository, following the model MonoGame uses for its console frameworks. See the <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/ROADMAP.md#platforms" target="_blank" rel="noopener noreferrer" class="">roadmap</a> for how to get access.</p>
 <h1>One Package, Every Platform</h1>
 <p>Cocos2D-Mono is distributed as a <strong>single, multi-targeted NuGet package</strong>. You add one reference — <code>Cocos2D-Mono</code> — and the build for your project&#x27;s target framework is selected automatically: DesktopGL for cross-platform desktop (Windows, Linux, and macOS), WindowsDX for <code>net10.0-windows</code>, Android, or iOS.</p>
 <p>This replaces the older model, where each platform had its own package (<code>Cocos2D-Mono.DesktopGL</code>, <code>Cocos2D-Mono.Windows</code>, <code>Cocos2D-Mono.Android</code>, and so on). <strong>Picking a platform-specific package is no longer a thing</strong> — one package covers them all, so there&#x27;s less to choose from, nothing to keep in sync between platforms, and a simpler upgrade path. A content-pipeline-free variant, <code>Cocos2D-Mono.Core</code>, is available for projects that don&#x27;t use the MonoGame content pipeline, and the Box2D physics port ships as <code>Cocos2D-Mono.Box2D</code> (included automatically through the packages above).</p>
