@@ -12,11 +12,12 @@ on:
   workflow_dispatch:
 
 # A release pushes the engine's master and this repo's main seconds apart, which
-# starts this workflow twice. One deploy runs at a time: the second waits for the
-# first instead of publishing alongside it, and a deploy in progress is never
-# cancelled.
+# starts this workflow twice. One deploy per ref runs at a time: the second waits
+# for the first instead of publishing alongside it, and a deploy in progress is
+# never cancelled. Grouping by ref stops a manual run on another branch, which
+# publishes nothing, from replacing a pending main deploy.
 concurrency:
-  group: docs-site-deploy
+  group: docs-site-deploy-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
