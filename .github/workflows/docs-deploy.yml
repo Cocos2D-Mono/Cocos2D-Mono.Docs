@@ -4,10 +4,27 @@ on:
   push:
     branches:
       - main
+  # The engine's "Trigger Docs Site Rebuild" workflow sends update-docs when its
+  # master changes, so the API reference follows the engine even when the docs
+  # don't change.
+  repository_dispatch:
+    types: [update-docs]
+  workflow_dispatch:
+
+# A release pushes the engine's master and this repo's main seconds apart, which
+# starts this workflow twice. One deploy per ref runs at a time: the second waits
+# for the first instead of publishing alongside it, and a deploy in progress is
+# never cancelled. Grouping by ref stops a manual run on another branch, which
+# publishes nothing, from replacing a pending main deploy.
+concurrency:
+  group: docs-site-deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
     name: Deploy to GitHub Pages
+    # A manual run can be started on any branch; only main is published.
+    if: github.ref == 'refs/heads/main'
     runs-on: windows-latest
     permissions:
       contents: write
@@ -24,7 +41,7 @@ jobs:
           path: cocos2d-mono
 
       # Use the engine repo's own global.json so the SDK always matches what it
-      # pins (9.0.305+). A hardcoded version drifts and silently breaks the build.
+      # pins. A hardcoded version drifts and silently breaks the build.
       - name: ⚙️ Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
