@@ -4,10 +4,91 @@
         <title>Cocos2d-Mono Blog</title>
         <link>https://cocos2d-mono.dev/blog</link>
         <description>Cocos2d-Mono Blog</description>
-        <lastBuildDate>Wed, 29 Jul 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 16 Oct 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Cocos2D-Mono 2.7.0 is now out!]]></title>
+            <link>https://cocos2d-mono.dev/blog/2.7.0-release</link>
+            <guid>https://cocos2d-mono.dev/blog/2.7.0-release</guid>
+            <pubDate>Fri, 16 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Release Logo]]></description>
+            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" alt="Release Logo" src="https://cocos2d-mono.dev/assets/images/logo-new-release-a00e319b06d8816c2ed71b8b28debe4c.png" width="1500" height="500" class="img_ev3q"></p>
+<p>Cocos2D-Mono <strong>2.7.0</strong> is here, with the engine's first <strong>nullable reference type annotations</strong>. Nodes, actions, sprites, textures, labels and more now tell the compiler which of their members can be null. A game with nullable enabled learns where it needs a null check when it builds, instead of from a <code>NullReferenceException</code> while it runs. Nothing stops compiling: apart from nullability, no public API changed. The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/v2.7.0" target="_blank" rel="noopener noreferrer" class="">release notes</a> have the full rundown.</p>
+<p>Converting the engine also turned up plenty of long-standing bugs, so 2.7.0 is a big bug-fix release too. More on both below.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="what-the-annotations-do">What the Annotations Do<a href="https://cocos2d-mono.dev/blog/2.7.0-release#what-the-annotations-do" class="hash-link" aria-label="Direct link to What the Annotations Do" title="Direct link to What the Annotations Do" translate="no">​</a></h2>
+<p>In a project with <code>&lt;Nullable&gt;enable&lt;/Nullable&gt;</code>, the compiler now knows that <code>CCNode.GetChildByTag</code> returns null for an unknown tag, and that a node's <code>Parent</code> is null until it's added to one:</p>
+<div class="language-csharp codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csharp codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#393A34"><span class="token plain">var player = layer.GetChildByTag(PlayerTag);</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">player.RunAction(jump);       // warning CS8602: Dereference of a possibly null reference.</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">if (layer.GetChildByTag(PlayerTag) is CCSprite sprite)</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">{</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">    sprite.RunAction(jump);   // no warning: sprite can't be null here</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">}</span><br></div></code></pre></div></div>
+<p>2.7.0 annotates the parts of the engine a game touches most:</p>
+<ul>
+<li class="">the base nodes</li>
+<li class="">input handling</li>
+<li class="">layers, scenes and transitions</li>
+<li class="">actions</li>
+<li class="">particles and grid effects</li>
+<li class="">sprites and their caches</li>
+<li class="">textures and labels</li>
+</ul>
+<p>The rest, including menus, tile maps, the director and scheduler, the platform code, the extensions and Box2D, follows through the 2.x releases, a directory at a time. By 3.0 the annotations cover the whole public API. A type that hasn't been converted carries no annotations, so it raises no new warnings either way. Projects that don't enable nullable get no new warnings at all.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="upgrading">Upgrading<a href="https://cocos2d-mono.dev/blog/2.7.0-release#upgrading" class="hash-link" aria-label="Direct link to Upgrading" title="Direct link to Upgrading" translate="no">​</a></h2>
+<p>Bump your package reference to 2.7.0. Three things are worth a look:</p>
+<ul>
+<li class="">
+<p><strong>Builds that treat warnings as errors.</strong> If your project enables nullable and sets <code>TreatWarningsAsErrors</code>, the new warnings fail the build until the code checks for null. To upgrade now and fix them as you go, keep them as warnings for the time being:</p>
+<div class="language-xml codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-xml codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#393A34"><span class="token tag punctuation" style="color:#393A34">&lt;</span><span class="token tag" style="color:#00009f">PropertyGroup</span><span class="token tag punctuation" style="color:#393A34">&gt;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">  </span><span class="token tag punctuation" style="color:#393A34">&lt;</span><span class="token tag" style="color:#00009f">WarningsNotAsErrors</span><span class="token tag punctuation" style="color:#393A34">&gt;</span><span class="token plain">nullable</span><span class="token tag punctuation" style="color:#393A34">&lt;/</span><span class="token tag" style="color:#00009f">WarningsNotAsErrors</span><span class="token tag punctuation" style="color:#393A34">&gt;</span><span class="token plain"></span><br></div><div class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token tag punctuation" style="color:#393A34">&lt;/</span><span class="token tag" style="color:#00009f">PropertyGroup</span><span class="token tag punctuation" style="color:#393A34">&gt;</span><br></div></code></pre></div></div>
+</li>
+<li class="">
+<p><strong>More specific exceptions.</strong> Some failures that used to surface as a <code>NullReferenceException</code> now throw an exception that names the problem. For example, several methods given a texture or font file that can't be loaded throw <code>ArgumentException</code>, and reversing an action that has no reverse throws <code>NotSupportedException</code>. If your code catches <code>NullReferenceException</code> from the engine, catch the new type instead.</p>
+</li>
+<li class="">
+<p><strong>Fixes that change behavior.</strong> A few actions now do what they always claimed to:</p>
+<ul>
+<li class=""><code>CCShuffleTiles</code> and <code>CCTurnOffTiles</code> follow their seed.</li>
+<li class=""><code>CCMoveFrom</code> and <code>CCColorBlendAnimation</code> change their node.</li>
+<li class=""><code>CCAccelDeccelAmplitude</code> animates the effect it wraps.</li>
+</ul>
+<p>If your game worked around the old behavior, check it.</p>
+</li>
+</ul>
+<p>The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="">CHANGELOG</a> covers every change under Upgrading, Changed and Fixed.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="bugs-found-along-the-way">Bugs Found Along the Way<a href="https://cocos2d-mono.dev/blog/2.7.0-release#bugs-found-along-the-way" class="hash-link" aria-label="Direct link to Bugs Found Along the Way" title="Direct link to Bugs Found Along the Way" translate="no">​</a></h2>
+<p>Annotating code means asking, member by member, "can this be null here?" A surprising number of the answers turned out to be bugs. The CHANGELOG lists 44 fixes. Some highlights:</p>
+<ul>
+<li class=""><strong>Copies that changed the original.</strong> <code>Copy(zone)</code> on <code>CCScaleTo</code>, <code>CCScaleBy</code>, <code>CCReverseTime</code> and <code>CCOrbitCamera</code> copied the wrong way, overwriting the original action with the new one's values. A copied <code>CCCardinalSplineBy</code>, <code>CCCatmullRomTo</code> or <code>CCCatmullRomBy</code> came back as a <code>CCCardinalSplineTo</code>. So a copied spline-by action moved the node to the spline's absolute points instead of relative to where it started.</li>
+<li class=""><strong>Actions that never set their target.</strong> <code>CCMoveFrom</code> and <code>CCColorBlendAnimation</code> never changed their node, and <code>CCRotateAnimation</code> threw as soon as it ran.</li>
+<li class=""><strong>Touch priority mid-touch.</strong> <code>CCTouchDispatcher.SetPriority</code> failed when called during a touch dispatch. That happens when a menu callback opens a popup menu.</li>
+<li class=""><strong><code>CCLayerMultiplex</code> bookkeeping.</strong> Its layer order, indexing and <code>SwitchToAndReleaseMe</code> all had bugs. It now switches, numbers and releases layers correctly.</li>
+<li class=""><strong>Sprite sheets.</strong> <code>CCSpriteSheetCache.AddSpriteSheet</code> ignored the stream or dictionary it was given. <code>CCSpriteFrameCache.RemoveSpriteFrameByName</code> threw for a frame that had no alias.</li>
+</ul>
+<p>The fixes come with regression tests: the unit suite grew from 132 tests in 2.6.2 to 300.</p>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/compare/v2.6.2...v2.7.0" target="_blank" rel="noopener noreferrer" class="">https://github.com/Cocos2D-Mono/cocos2d-mono/compare/v2.6.2...v2.7.0</a></p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="also-new-since-260">Also New Since 2.6.0<a href="https://cocos2d-mono.dev/blog/2.7.0-release#also-new-since-260" class="hash-link" aria-label="Direct link to Also New Since 2.6.0" title="Direct link to Also New Since 2.6.0" translate="no">​</a></h2>
+<p>Two smaller releases shipped since our last post:</p>
+<ul>
+<li class=""><strong>2.6.2: Mac Catalyst and tvOS from source.</strong> The engine now builds for Mac Catalyst and tvOS against our <a href="https://github.com/Cocos2D-Mono/MonoGame" target="_blank" rel="noopener noreferrer" class="">MonoGame fork</a>. MonoGame publishes no package for either platform, so they aren't in the NuGet packages. The README's <a href="https://github.com/Cocos2D-Mono/cocos2d-mono#platform-support" target="_blank" rel="noopener noreferrer" class="">Platform support</a> section has the build steps. It also sets out which platforms are in the packages and which build from source. On tvOS, the Siri Remote's select button arrives as gamepad input.</li>
+<li class=""><strong>2.6.1: label fixes on Linux and macOS.</strong> <code>CCLabel</code> now disposes the native Skia canvas and font it creates on each redraw, instead of leaving them for the garbage collector.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="nuget-packages">NuGet Packages<a href="https://cocos2d-mono.dev/blog/2.7.0-release#nuget-packages" class="hash-link" aria-label="Direct link to NuGet Packages" title="Direct link to NuGet Packages" translate="no">​</a></h2>
+<ul>
+<li class="">
+<p><strong>Cocos2D-Mono</strong> (Windows, Linux, macOS, Android, iOS): <a href="https://www.nuget.org/packages/Cocos2D-Mono/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Core</strong> — same engine, no content-pipeline dependency: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Core/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Core</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Box2D</strong> — the Box2D physics port: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Box2D/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Box2D</a></p>
+</li>
+</ul>
+<p>The samples package and the Visual Studio project templates move to 2.7.0 too.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-next">What's Next<a href="https://cocos2d-mono.dev/blog/2.7.0-release#whats-next" class="hash-link" aria-label="Direct link to What's Next" title="Direct link to What's Next" translate="no">​</a></h2>
+<p>More annotations. The next releases take on menus, tile maps and the rest of the engine. If you find a member annotated wrong, either nullable where it can never be null or the other way round, please <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/issues" target="_blank" rel="noopener noreferrer" class="">open an issue</a>.</p>
+<p>Thanks, as always, for being part of it. GO COCOS NUTS!</p>]]></content:encoded>
+            <category>update</category>
+            <category>release</category>
+            <category>2.7.0</category>
+        </item>
         <item>
             <title><![CDATA[Cocos2D-Mono 2.6.0 is now out!]]></title>
             <link>https://cocos2d-mono.dev/blog/2.6.0-release</link>
