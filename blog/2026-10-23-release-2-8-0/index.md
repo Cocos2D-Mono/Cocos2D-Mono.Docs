@@ -7,7 +7,7 @@ tags: [update, release, 2.8.0]
 
 ![Release Logo](./logo-new-release.png)
 
-Cocos2D-Mono **2.8.0** is here, with the next round of **nullable reference type annotations**. Menus, tile maps and more now tell the compiler which of their members can be null. Converting them turned up another batch of long-standing bugs, all fixed in this release. The engine also stops bundling its own gzip code and uses .NET's instead. Nothing stops compiling: apart from nullability, no public API changed. The [release notes](https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/v2.8.0) have the full rundown.
+Cocos2D-Mono **2.8.0** is here, with the next round of **nullable reference type annotations**. Menus, tile maps and more now tell the compiler which of their members can be null. Converting them turned up another batch of long-standing bugs, all fixed in this release. The engine also stops bundling its own gzip code and uses .NET's instead. Apart from nullability, no public API changed, so nothing stops compiling unless your build treats the new nullable warnings as errors. The [release notes](https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/v2.8.0) have the full rundown.
 
 <!-- truncate -->
 
