@@ -4,10 +4,82 @@
         <title>Cocos2d-Mono Blog</title>
         <link>https://cocos2d-mono.dev/blog</link>
         <description>Cocos2d-Mono Blog</description>
-        <lastBuildDate>Fri, 16 Oct 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 23 Oct 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Cocos2D-Mono 2.8.0 is now out!]]></title>
+            <link>https://cocos2d-mono.dev/blog/2.8.0-release</link>
+            <guid>https://cocos2d-mono.dev/blog/2.8.0-release</guid>
+            <pubDate>Fri, 23 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Release Logo]]></description>
+            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" alt="Release Logo" src="https://cocos2d-mono.dev/assets/images/logo-new-release-a00e319b06d8816c2ed71b8b28debe4c.png" width="1500" height="500" class="img_ev3q"></p>
+<p>Cocos2D-Mono <strong>2.8.0</strong> is here, with the next round of <strong>nullable reference type annotations</strong>. Menus, tile maps and more now tell the compiler which of their members can be null. Converting them turned up another batch of long-standing bugs, all fixed in this release. The engine also stops bundling its own gzip code and uses .NET's instead. Apart from nullability, no public API changed, so nothing stops compiling unless your build treats the new nullable warnings as errors. The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/v2.8.0" target="_blank" rel="noopener noreferrer" class="">release notes</a> have the full rundown.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="more-of-the-engine-is-annotated">More of the Engine Is Annotated<a href="https://cocos2d-mono.dev/blog/2.8.0-release#more-of-the-engine-is-annotated" class="hash-link" aria-label="Direct link to More of the Engine Is Annotated" title="Direct link to More of the Engine Is Annotated" translate="no">​</a></h2>
+<p>2.7.0 annotated the parts of the engine a game touches most. 2.8.0 adds:</p>
+<ul>
+<li class="">the menus: <code>CCMenu</code> and the menu items</li>
+<li class="">the misc nodes: clipping, draw, lightning, motion streak, parallax scroll, progress timer and render texture nodes</li>
+<li class="">the tile maps: TMX maps with their layers, object groups and tilesets, tile map atlases and parallax nodes</li>
+<li class="">the support helpers: <code>CCUserDefault</code>, <code>CCObjectPool</code>, the <code>CCPoint</code>, <code>CCSize</code> and <code>CCRect</code> type converters, and <code>CCUtils</code></li>
+</ul>
+<p>For example, the compiler now knows that a tile map's <code>LayerNamed</code> returns null for a layer the map doesn't have:</p>
+<div class="language-csharp codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csharp codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#393A34"><span class="token plain">var ground = map.LayerNamed("Ground");</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">ground.TileGIDAt(new CCPoint(2, 3));      // warning CS8602: Dereference of a possibly null reference.</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">if (map.LayerNamed("Ground") is CCTMXLayer layer)</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">{</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">    layer.TileGIDAt(new CCPoint(2, 3));   // no warning: layer can't be null here</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">}</span><br></div></code></pre></div></div>
+<p>The director and scheduler, the platform code, the extensions and Box2D are next. As before, a type that hasn't been converted raises no new warnings, and projects that don't enable nullable get none at all.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="upgrading">Upgrading<a href="https://cocos2d-mono.dev/blog/2.8.0-release#upgrading" class="hash-link" aria-label="Direct link to Upgrading" title="Direct link to Upgrading" translate="no">​</a></h2>
+<p>Bump your package reference to 2.8.0. Three things are worth a look:</p>
+<ul>
+<li class=""><strong>New warnings in projects that enable nullable.</strong> The newly annotated members raise warnings where they're used without a null check. If your build treats warnings as errors, <code>&lt;WarningsNotAsErrors&gt;nullable&lt;/WarningsNotAsErrors&gt;</code> keeps them as warnings while you fix them, as the <a class="" href="https://cocos2d-mono.dev/blog/2.7.0-release">2.7.0 post</a> explains.</li>
+<li class=""><strong>More specific exceptions.</strong> For example, <code>CCMenu.AddChild</code> throws <code>ArgumentException</code> for a child that isn't a menu item, <code>CCProgressTimer</code> throws <code>ArgumentNullException</code> for a null sprite, and a malformed TMX file throws <code>InvalidDataException</code>, naming the misplaced element. Each used to fail with a <code>NullReferenceException</code>, often much later, or not at all. If your code catches <code>NullReferenceException</code> from the engine, catch the new type instead.</li>
+<li class=""><strong>Fixes that change behavior.</strong>
+<ul>
+<li class="">Gzip data with a bad checksum is rejected. More on that below.</li>
+<li class="">A particle system whose embedded texture can't be loaded gets the engine's default texture instead of none.</li>
+<li class=""><code>CCImageTGA.imageData</code> and <code>CCTMXLayerInfo.Tiles</code> start out as empty arrays instead of null.</li>
+</ul>
+</li>
+</ul>
+<p>The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="">CHANGELOG</a> covers every change under Upgrading, Changed and Fixed.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="bugs-found-along-the-way">Bugs Found Along the Way<a href="https://cocos2d-mono.dev/blog/2.8.0-release#bugs-found-along-the-way" class="hash-link" aria-label="Direct link to Bugs Found Along the Way" title="Direct link to Bugs Found Along the Way" translate="no">​</a></h2>
+<p>The CHANGELOG lists 19 fixes. Some highlights:</p>
+<ul>
+<li class=""><strong>Tile maps that wouldn't load.</strong> A map with a layer whose tiles were all empty threw when it loaded. Such a layer is now skipped, as in cocos2d-x 3. A map read from a stream threw at its first tileset image, because there was no map file to find the image path from. And a malformed map threw a bare <code>NullReferenceException</code>.</li>
+<li class=""><strong>Menus that crashed later.</strong> In release builds, <code>CCMenu.AddChild</code> quietly accepted a child that wasn't a menu item, and the menu then crashed when it entered a scene. Giving the focus to an empty menu threw too, and so did pressing a gamepad button when no item had the focus.</li>
+<li class=""><strong>Nodes made with the parameterless constructor.</strong> A <code>CCMenuItemToggle</code>, <code>CCMenuItemLabel</code> or <code>CCLightningStreak</code> created that way could throw as soon as it was used.</li>
+<li class=""><strong>Type converters.</strong> Converting a null <code>CCPoint</code>, <code>CCSize</code> or <code>CCRect</code> value to a string threw, where it should return an empty string.</li>
+</ul>
+<p>The fixes come with regression tests, which bring the unit suite to 338.</p>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/compare/v2.7.0...v2.8.0" target="_blank" rel="noopener noreferrer" class="">https://github.com/Cocos2D-Mono/cocos2d-mono/compare/v2.7.0...v2.8.0</a></p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="gzip-without-the-bundled-code">Gzip Without the Bundled Code<a href="https://cocos2d-mono.dev/blog/2.8.0-release#gzip-without-the-bundled-code" class="hash-link" aria-label="Direct link to Gzip Without the Bundled Code" title="Direct link to Gzip Without the Bundled Code" translate="no">​</a></h2>
+<p>TMX maps with gzip-compressed layers, particle systems with an embedded texture, and <code>ZipUtils.InflateMemory</code> all decompress gzip data. Until now they used a copy of an old zlib library that the engine carried from its Windows Phone days, when the phone had no <code>System.IO.Compression</code>. 2.8.0 drops that copy, about 5,000 lines of it, and uses .NET's own <code>GZipStream</code>, which every platform the engine targets has.</p>
+<p>Nothing in the public API changes. One thing behaves differently: the old code never checked a gzip stream's checksum, so corrupt data decompressed into wrong tiles or pixels. Now it's rejected, and handled the same way as any data that can't be decompressed: the TMX layer stays empty, <code>InflateMemory</code> returns 0, and a particle system falls back to the default texture.</p>
+<p>We checked the new code on an Android device as well, with a new GzipTest scene in the test app. It loads a gzip-compressed map and particle systems with embedded textures, and checks what they decode against known values.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="also-in-this-release">Also in This Release<a href="https://cocos2d-mono.dev/blog/2.8.0-release#also-in-this-release" class="hash-link" aria-label="Direct link to Also in This Release" title="Direct link to Also in This Release" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>The API reference on this site is rebuilt at each release again.</strong> The rebuild had failed since 2.6.0.</li>
+<li class=""><strong>Building Mac Catalyst and tvOS from source</strong> now uses the <code>cocos2d-mono</code> branch of our <a href="https://github.com/Cocos2D-Mono/MonoGame" target="_blank" rel="noopener noreferrer" class="">MonoGame fork</a>, the branch that support will live on.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="nuget-packages">NuGet Packages<a href="https://cocos2d-mono.dev/blog/2.8.0-release#nuget-packages" class="hash-link" aria-label="Direct link to NuGet Packages" title="Direct link to NuGet Packages" translate="no">​</a></h2>
+<ul>
+<li class="">
+<p><strong>Cocos2D-Mono</strong> (Windows, Linux, macOS, Android, iOS): <a href="https://www.nuget.org/packages/Cocos2D-Mono/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Core</strong> — same engine, no content-pipeline dependency: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Core/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Core</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Box2D</strong> — the Box2D physics port: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Box2D/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Box2D</a></p>
+</li>
+</ul>
+<p>The samples package and the Visual Studio project templates move to 2.8.0 too.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-next">What's Next<a href="https://cocos2d-mono.dev/blog/2.8.0-release#whats-next" class="hash-link" aria-label="Direct link to What's Next" title="Direct link to What's Next" translate="no">​</a></h2>
+<p>More annotations: the director and scheduler, the platform code, the extensions and Box2D. If you find a member annotated wrong, either nullable where it can never be null or the other way round, please <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/issues" target="_blank" rel="noopener noreferrer" class="">open an issue</a>.</p>
+<p>Thanks, as always, for being part of it. GO COCOS NUTS!</p>]]></content:encoded>
+            <category>update</category>
+            <category>release</category>
+            <category>2.8.0</category>
+        </item>
         <item>
             <title><![CDATA[Cocos2D-Mono 2.7.0 is now out!]]></title>
             <link>https://cocos2d-mono.dev/blog/2.7.0-release</link>
