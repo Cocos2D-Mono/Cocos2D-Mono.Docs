@@ -50,7 +50,7 @@ Bump your package reference to 2.9.0. Four things are worth a look:
 
 Building the engine from source now needs .NET SDK 10.0.303 or later. Games that use the packages aren't affected.
 
-The [CHANGELOG](https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/CHANGELOG.md) covers every change under Upgrading, Changed and Fixed.
+The [CHANGELOG](https://github.com/Cocos2D-Mono/cocos2d-mono/blob/v2.9.0/CHANGELOG.md) covers every change under Upgrading, Changed and Fixed.
 
 ## Box2D's World Lock
 
