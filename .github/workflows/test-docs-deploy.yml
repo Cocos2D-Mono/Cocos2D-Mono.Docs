@@ -4,6 +4,12 @@ on:
   pull_request:
     branches:
       - main
+      - dev
+      - "release/**"
+
+# The check only builds the site, so it needs to read the repository and nothing else.
+permissions:
+  contents: read
 
 jobs:
   test-deploy:
@@ -11,9 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - uses: actions/setup-node@v3
         with:
-          node-version: "20.18.1"
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
           cache: npm
           cache-dependency-path: "**/package-lock.json"
 
