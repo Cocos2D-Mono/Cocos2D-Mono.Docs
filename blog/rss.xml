@@ -4,10 +4,91 @@
         <title>Cocos2d-Mono Blog</title>
         <link>https://cocos2d-mono.dev/blog</link>
         <description>Cocos2d-Mono Blog</description>
-        <lastBuildDate>Fri, 23 Oct 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 30 Oct 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Cocos2D-Mono 2.9.0 is now out!]]></title>
+            <link>https://cocos2d-mono.dev/blog/2.9.0-release</link>
+            <guid>https://cocos2d-mono.dev/blog/2.9.0-release</guid>
+            <pubDate>Fri, 30 Oct 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Release Logo]]></description>
+            <content:encoded><![CDATA[<p><img decoding="async" loading="lazy" alt="Release Logo" src="https://cocos2d-mono.dev/assets/images/logo-new-release-a00e319b06d8816c2ed71b8b28debe4c.png" width="1500" height="500" class="img_ev3q"></p>
+<p>Cocos2D-Mono <strong>2.9.0</strong> completes the <strong>nullable reference type annotations</strong> that started in 2.7.0. The director and scheduler, the platform code, the controls, the CCB reader and all of Box2D now tell the compiler which of their members can be null, so every part of the engine is annotated, apart from the deprecated zlib port. Converting them turned up another batch of long-standing bugs, all fixed in this release, including a few in Box2D's world lock. The engine also stops using its bundled zlib code, which is now deprecated. Apart from nullability and that deprecation, no public API changed, so nothing stops compiling unless your build treats the new warnings as errors. The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/releases/tag/v2.9.0" target="_blank" rel="noopener noreferrer" class="">release notes</a> have the full rundown.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-whole-engine-is-annotated">The Whole Engine Is Annotated<a href="https://cocos2d-mono.dev/blog/2.9.0-release#the-whole-engine-is-annotated" class="hash-link" aria-label="Direct link to The Whole Engine Is Annotated" title="Direct link to The Whole Engine Is Annotated" translate="no">​</a></h2>
+<p>2.7.0 and 2.8.0 annotated the parts of the engine a game touches most: nodes, actions, sprites, labels, menus, tile maps and more. 2.9.0 annotates the rest:</p>
+<ul>
+<li class="">the director, the scheduler and the other root files</li>
+<li class="">the platform code: plists, content loading, and runtime classes such as <code>CCApplication</code> and <code>CCDrawManager</code></li>
+<li class="">the embeddable view, <code>CCGameView</code></li>
+<li class="">the extensions: the controls, the scroll and table views, and the CCB reader</li>
+<li class="">all of Box2D</li>
+</ul>
+<p>Only the deprecated zlib port is left out. It keeps nullable checks off until 3.0 removes it.</p>
+<p>For example, a body's <code>UserData</code> is nullable, because a body has no user data until you give it some:</p>
+<div class="language-csharp codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-csharp codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><div class="token-line" style="color:#393A34"><span class="token plain">var sprite = (CCSprite)body.UserData;   // warning CS8600: Converting null literal or possible null value to non-nullable type.</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">if (body.UserData is CCSprite s)</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">{</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">    s.Position = new CCPoint(body.Position.x * PtmRatio, body.Position.y * PtmRatio);   // no warning: s can't be null here</span><br></div><div class="token-line" style="color:#393A34"><span class="token plain">}</span><br></div></code></pre></div></div>
+<p>Box2D's lists of bodies, fixtures, contacts and joints end with null, so <code>BodyList</code>, <code>Next</code> and the like are nullable too. A loop that stops at null, as these loops always had to, raises no warning. And as before, projects that don't enable nullable get no new warnings at all.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="upgrading">Upgrading<a href="https://cocos2d-mono.dev/blog/2.9.0-release#upgrading" class="hash-link" aria-label="Direct link to Upgrading" title="Direct link to Upgrading" translate="no">​</a></h2>
+<p>Bump your package reference to 2.9.0. Four things are worth a look:</p>
+<ul>
+<li class=""><strong>New warnings in projects that enable nullable.</strong> The newly annotated members raise warnings where they're used without a null check. If your build treats warnings as errors, <code>&lt;WarningsNotAsErrors&gt;nullable&lt;/WarningsNotAsErrors&gt;</code> keeps them as warnings while you fix them, as the <a class="" href="https://cocos2d-mono.dev/blog/2.7.0-release">2.7.0 post</a> explains. A few signatures you implement or override changed as well: an <code>ICCSAXDelegator.StartElement</code> implementation should take <code>string[]? atts</code>, and a custom CCB node loader's overrides should take <code>CCNode? parent</code>.</li>
+<li class=""><strong>The zlib port is obsolete.</strong> Code that uses <code>Cocos2D.Compression.Zlib</code> gets an obsolete warning. Switch to .NET's <code>ZLibStream</code> before 3.0 removes the port. More on that below.</li>
+<li class=""><strong>More specific exceptions.</strong> For example, a sprite frame, animation or particle plist that lacks a value it needs throws an <code>InvalidDataException</code> that names the missing key, and <code>b2World.CreateJoint</code> throws <code>ArgumentException</code> for a definition without both bodies. Most of these used to fail with a <code>NullReferenceException</code>. If your code catches <code>NullReferenceException</code> from the engine, catch the new type instead.</li>
+<li class=""><strong>Fixes that change behavior.</strong>
+<ul>
+<li class="">Box2D throws <code>InvalidOperationException</code> when a body, joint or fixture is created, or <code>Step</code> is called, while the world is stepping. More on that below.</li>
+<li class="">A particle plist without a <code>textureFileName</code> gets its embedded texture instead of the default one.</li>
+<li class=""><code>CCContentManager.Load&lt;string&gt;</code> no longer returns null for a content file without any text.</li>
+</ul>
+</li>
+</ul>
+<p>Building the engine from source now needs .NET SDK 10.0.303 or later. Games that use the packages aren't affected.</p>
+<p>The <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/blob/v2.9.0/CHANGELOG.md" target="_blank" rel="noopener noreferrer" class="">CHANGELOG</a> covers every change under Upgrading, Changed and Fixed.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="box2ds-world-lock">Box2D's World Lock<a href="https://cocos2d-mono.dev/blog/2.9.0-release#box2ds-world-lock" class="hash-link" aria-label="Direct link to Box2D's World Lock" title="Direct link to Box2D's World Lock" translate="no">​</a></h2>
+<p>Box2D locks the world while it steps, because adding or removing bodies partway through a step would break it. That's why a contact listener shouldn't create a body itself: it records what to do, and the game does it after <code>Step</code> returns. Converting Box2D showed that the lock didn't always hold:</p>
+<ul>
+<li class=""><strong>Creating a body, joint or fixture during a step returned null.</strong> That usually surfaced later as a <code>NullReferenceException</code>, far from the cause. Now <code>CreateBody</code>, <code>CreateJoint</code> and <code>CreateFixture</code> throw <code>InvalidOperationException</code> right away.</li>
+<li class=""><strong>A callback that threw left the world locked.</strong> Until a later <code>Step</code> finished, creating or destroying a body failed or did nothing. Now <code>Step</code> unlocks the world when a callback throws.</li>
+<li class=""><strong>Part of the step ran unlocked.</strong> A contact filter called while <code>Step</code> looked for new contacts could change the world, or step it again. Now the whole step is locked, and calling <code>Step</code> during a step throws <code>InvalidOperationException</code> instead of running a second step inside the first.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="bugs-found-along-the-way">Bugs Found Along the Way<a href="https://cocos2d-mono.dev/blog/2.9.0-release#bugs-found-along-the-way" class="hash-link" aria-label="Direct link to Bugs Found Along the Way" title="Direct link to Bugs Found Along the Way" translate="no">​</a></h2>
+<p>The CHANGELOG lists 50 fixes. Some highlights:</p>
+<ul>
+<li class=""><strong><code>b2Body.DestroyFixture</code> could hang.</strong> It looped forever for any fixture but the body's two newest.</li>
+<li class=""><strong>The CCB reader.</strong> <code>CCNodeLoaderLibrary.SharedInstance</code> threw the first time it was used, because it registered the default loaders twice. JavaScript-controlled files with owner outlets or callbacks threw as they loaded, and so did a file that used a missing texture.</li>
+<li class=""><strong><code>CCGameView</code>.</strong> Several things threw in an embedded view: a node with the game pad enabled entering or leaving a scene, <code>CCBox2dDraw</code> loading its font, and on iOS, a <code>CCLabel</code> with a TTF font. The first two assumed a <code>CCApplication</code>, which an embedded view doesn't have.</li>
+<li class=""><strong>Plists.</strong> A sprite frame without an <code>aliases</code> array, animation properties without sprite sheets, and a plist with a <code>&lt;data&gt;</code> value all threw a <code>NullReferenceException</code>. A particle plist without a <code>textureFileName</code> lost its embedded texture.</li>
+</ul>
+<p>The fixes come with regression tests, which bring the unit suite to 398.</p>
+<p><strong>Full Changelog</strong>: <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/compare/v2.8.0...v2.9.0" target="_blank" rel="noopener noreferrer" class="">https://github.com/Cocos2D-Mono/cocos2d-mono/compare/v2.8.0...v2.9.0</a></p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="zlib-without-the-bundled-code">Zlib Without the Bundled Code<a href="https://cocos2d-mono.dev/blog/2.9.0-release#zlib-without-the-bundled-code" class="hash-link" aria-label="Direct link to Zlib Without the Bundled Code" title="Direct link to Zlib Without the Bundled Code" translate="no">​</a></h2>
+<p>2.8.0 moved gzip to .NET's <code>GZipStream</code>. 2.9.0 does the same for zlib: TMX layers with <code>compression="zlib"</code> now decompress with .NET's <code>ZLibStream</code>. That leaves nothing in the engine using its old zlib port. The port is public, as <code>Cocos2D.Compression.Zlib</code>, so rather than removing it in a minor release, 2.9.0 marks it obsolete, and 3.0 removes it. If your game uses it directly, switch to <code>System.IO.Compression.ZLibStream</code>.</p>
+<p>One thing behaves differently: a corrupt zlib layer throws <code>InvalidDataException</code> instead of the port's <code>ZStreamException</code>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="also-in-this-release">Also in This Release<a href="https://cocos2d-mono.dev/blog/2.9.0-release#also-in-this-release" class="hash-link" aria-label="Direct link to Also in This Release" title="Direct link to Also in This Release" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>A vulnerable build dependency is gone.</strong> The packages are now built with the .NET SDK's own Source Link instead of the <code>Microsoft.SourceLink.GitHub</code> package, whose <code>Microsoft.Build.Tasks.Git</code> dependency had an information disclosure vulnerability (CVE-2026-62900). It was only ever used to build the engine and never shipped in the packages, and the Source Link information in them is unchanged.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="nuget-packages">NuGet Packages<a href="https://cocos2d-mono.dev/blog/2.9.0-release#nuget-packages" class="hash-link" aria-label="Direct link to NuGet Packages" title="Direct link to NuGet Packages" translate="no">​</a></h2>
+<ul>
+<li class="">
+<p><strong>Cocos2D-Mono</strong> (Windows, Linux, macOS, Android, iOS): <a href="https://www.nuget.org/packages/Cocos2D-Mono/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Core</strong> — same engine, no content-pipeline dependency: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Core/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Core</a></p>
+</li>
+<li class="">
+<p><strong>Cocos2D-Mono.Box2D</strong> — the Box2D physics port: <a href="https://www.nuget.org/packages/Cocos2D-Mono.Box2D/" target="_blank" rel="noopener noreferrer" class="">Cocos2D-Mono.Box2D</a></p>
+</li>
+</ul>
+<p>The samples package and the Visual Studio project templates move to 2.9.0 too.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="whats-next">What's Next<a href="https://cocos2d-mono.dev/blog/2.9.0-release#whats-next" class="hash-link" aria-label="Direct link to What's Next" title="Direct link to What's Next" translate="no">​</a></h2>
+<p>With the annotations done, the next releases clear the compiler warnings that are left, and CI now fails on new ones, so the engine stays clean as it changes. Some of the remaining warnings point at code worth a second look, so expect a few more fixes along the way. Further out is <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/blob/master/ROADMAP.md#30" target="_blank" rel="noopener noreferrer" class="">3.0</a>, an API cleanup that has no date yet. If you find a member annotated wrong, either nullable where it can never be null or the other way round, please <a href="https://github.com/Cocos2D-Mono/cocos2d-mono/issues" target="_blank" rel="noopener noreferrer" class="">open an issue</a>.</p>
+<p>Thanks, as always, for being part of it. GO COCOS NUTS!</p>]]></content:encoded>
+            <category>update</category>
+            <category>release</category>
+            <category>2.9.0</category>
+        </item>
         <item>
             <title><![CDATA[Cocos2D-Mono 2.8.0 is now out!]]></title>
             <link>https://cocos2d-mono.dev/blog/2.8.0-release</link>
